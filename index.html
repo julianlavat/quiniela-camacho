@@ -260,11 +260,11 @@
     <div class="howto">
       <div class="howto-title">⚽ Cómo se gana</div>
       <div class="howto-block">
-        <div class="howto-tag hist">🟡 Partidos 11–20 jun</div>
-        <div class="howto-row"><span>Acertar quién gana</span><b>+3</b></div>
+        <div class="howto-tag hist">🟡 Fase de grupos · 12–23 jun</div>
+        <div class="howto-row"><span>Acertar quién gana</span><b>+1</b></div>
       </div>
       <div class="howto-block">
-        <div class="howto-tag new">🟢 Partidos desde 21 jun</div>
+        <div class="howto-tag new">🟢 Partidos desde 24 jun</div>
         <div class="howto-row"><span>Acertar quién gana</span><b>+3</b></div>
         <div class="howto-row hl"><span>🎯 Marcador exacto</span><b>+3</b></div>
         <div class="howto-row"><span>Quién anota primero</span><b>+1</b></div>
@@ -391,30 +391,6 @@ const EN = {
 
 const MATCHES = [
   // ---- HISTÓRICOS ----
-  {id:"h20",day:"Histórico · 11 jun",grp:"A",a:"México",b:"Sudáfrica",type:"hist",stage:"grupos"},
-  {id:"h21",day:"Histórico · 11 jun",grp:"A",a:"Corea del Sur",b:"Chequia",type:"hist",stage:"grupos"},
-  {id:"h22",day:"Histórico · 12 jun",grp:"B",a:"Canadá",b:"Bosnia",type:"hist",stage:"grupos"},
-  {id:"h23",day:"Histórico · 12 jun",grp:"D",a:"Estados Unidos",b:"Paraguay",type:"hist",stage:"grupos"},
-  {id:"h24",day:"Histórico · 13 jun",grp:"B",a:"Qatar",b:"Suiza",type:"hist",stage:"grupos"},
-  {id:"h25",day:"Histórico · 13 jun",grp:"C",a:"Brasil",b:"Marruecos",type:"hist",stage:"grupos"},
-  {id:"h26",day:"Histórico · 13 jun",grp:"C",a:"Haití",b:"Escocia",type:"hist",stage:"grupos"},
-  {id:"h27",day:"Histórico · 13 jun",grp:"D",a:"Australia",b:"Turquía",type:"hist",stage:"grupos"},
-  {id:"h28",day:"Histórico · 14 jun",grp:"E",a:"Alemania",b:"Curazao",type:"hist",stage:"grupos"},
-  {id:"h29",day:"Histórico · 14 jun",grp:"E",a:"Costa de Marfil",b:"Ecuador",type:"hist",stage:"grupos"},
-  {id:"h30",day:"Histórico · 14 jun",grp:"F",a:"Países Bajos",b:"Japón",type:"hist",stage:"grupos"},
-  {id:"h31",day:"Histórico · 14 jun",grp:"F",a:"Suecia",b:"Túnez",type:"hist",stage:"grupos"},
-  {id:"h32",day:"Histórico · 15 jun",grp:"G",a:"Bélgica",b:"Egipto",type:"hist",stage:"grupos"},
-  {id:"h33",day:"Histórico · 15 jun",grp:"G",a:"Irán",b:"Nueva Zelanda",type:"hist",stage:"grupos"},
-  {id:"h34",day:"Histórico · 15 jun",grp:"H",a:"España",b:"Cabo Verde",type:"hist",stage:"grupos"},
-  {id:"h35",day:"Histórico · 15 jun",grp:"H",a:"Arabia Saudita",b:"Uruguay",type:"hist",stage:"grupos"},
-  {id:"h36",day:"Histórico · 16 jun",grp:"I",a:"Francia",b:"Senegal",type:"hist",stage:"grupos"},
-  {id:"h37",day:"Histórico · 16 jun",grp:"I",a:"Irak",b:"Noruega",type:"hist",stage:"grupos"},
-  {id:"h38",day:"Histórico · 16 jun",grp:"J",a:"Argentina",b:"Argelia",type:"hist",stage:"grupos"},
-  {id:"h39",day:"Histórico · 16 jun",grp:"J",a:"Austria",b:"Jordania",type:"hist",stage:"grupos"},
-  {id:"h01",day:"Histórico · 17 jun",grp:"L",a:"Ghana",b:"Panamá",type:"hist",stage:"grupos"},
-  {id:"h44",day:"Histórico · 17 jun",grp:"K",a:"Portugal",b:"RD Congo",type:"hist",stage:"grupos"},
-  {id:"h45",day:"Histórico · 17 jun",grp:"L",a:"Inglaterra",b:"Croacia",type:"hist",stage:"grupos"},
-  {id:"h02",day:"Histórico · 17 jun",grp:"K",a:"Uzbekistán",b:"Colombia",type:"hist",stage:"grupos"},
   {id:"h03",day:"Histórico · 18 jun",grp:"A",a:"Chequia",b:"Sudáfrica",type:"hist",stage:"grupos"},
   {id:"h04",day:"Histórico · 18 jun",grp:"B",a:"Suiza",b:"Bosnia",type:"hist",stage:"grupos"},
   {id:"h05",day:"Histórico · 18 jun",grp:"B",a:"Canadá",b:"Qatar",type:"hist",stage:"grupos"},
@@ -703,7 +679,7 @@ function renderPlay(){
         <div class="team"><span class="flag">${fl(m.b)}</span><span class="nm">${m.b}</span></div>
       </div>
       <div class="body">
-        <div class="badge-row"><span class="badge ${m.type}">${m.type==="hist"?"🟡 Vale +3":"🟢 Reglas nuevas"}</span></div>`;
+        <div class="badge-row"><span class="badge ${m.type}">${m.type==="hist"?"🟡 Vale +1":"🟢 Reglas nuevas"}</span></div>`;
     if(m.type==="hist"){
       // Históricos: solo ganador
       html+=`<div class="q"><span class="lbl">¿Quién gana?</span>
@@ -832,8 +808,8 @@ function scoreMatch(pick,res,type){
   if(!res||!res.who) return {pts:0,hit:false};
   let pts=0,hit=false;
   if(type==="hist"){
-    // Históricos: solo ganador +3
-    if(pick&&pick.who&&pick.who===res.who){pts+=3;hit=true;}
+    // Históricos (12-23 jun): solo ganador, +1 por acierto
+    if(pick&&pick.who&&pick.who===res.who){pts+=1;hit=true;}
     return {pts,hit};
   }
   // Nuevos: el pick trae marcador (ga/gb); derivamos sus criterios
