@@ -185,6 +185,9 @@
   .fbtn.on{background:var(--card2);color:var(--chalk);border-color:var(--gold)}
   .rank-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
   .rank-scope{font-size:13px;color:var(--chalk2);margin:0 0 10px;font-weight:600;text-align:center}
+  .ronda-nota{font-size:12.5px;line-height:1.5;color:var(--chalk2);background:rgba(231,184,75,.08);
+    border:1px solid var(--gold2);border-radius:12px;padding:11px 14px;margin:0 0 16px}
+  .ronda-nota b{color:var(--gold)}
   .rrow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line)}
   .rrow:last-child{border-bottom:none}
   .rrow .pos{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
@@ -257,7 +260,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.6</span></p>
+    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.7</span></p>
     <div class="rule"></div>
   </header>
 
@@ -296,6 +299,7 @@
 
   <!-- ADMIN -->
   <section id="v-admin" class="hide">
+    <div class="ronda-nota">📌 Esta es la quiniela de la <b>2ª ronda</b> (segundos partidos, 18–23 jun). El <b>miércoles 24 de junio</b> arranca la ronda del 3er partido, que ya podrás predecir en la pestaña <b>Jugar</b>.</div>
     <div id="lock-screen" class="lock">
       <div class="lock-icon">🔒</div>
       <div class="lock-title">Zona protegida</div>
@@ -328,6 +332,7 @@
 
   <!-- RANKING -->
   <section id="v-rank" class="hide">
+    <div class="ronda-nota">📌 Ranking de la <b>2ª ronda</b> (segundos partidos, 18–23 jun). El <b>miércoles 24 de junio</b> comienza la ronda del 3er partido.</div>
     <div id="rank-filterbar" class="filterbar" style="flex-wrap:wrap"></div>
     <div id="rankTable"><div class="loading">Cargando ranking…</div></div>
     <div style="margin-top:14px;text-align:center">
@@ -646,15 +651,16 @@ function renderPlay(){
   if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
   renderStageBar("stage-bar-play", renderPlay);
   const stageMatches = MATCHES.filter(m=>m.stage===curStage);
-  // Un partido se oculta de "Jugar" si: ya lo predijiste en este dispositivo,
-  // o si ya se jugó (tiene resultado en RESULTS). No tiene caso predecir algo ya jugado.
+  // En Jugar solo se predicen los partidos de rondas ABIERTAS (tipo "new", del 24 jun en adelante).
+  // Las rondas ya cerradas (tipo "hist", 18-23 jun) no se muestran aquí, pero siguen contando
+  // en Resultados y Ranking. Además se ocultan los ya jugados o ya guardados en este dispositivo.
   const yaJugado = id => { const r=RESULTS[id]; return r && r.who; };
-  const pending = stageMatches.filter(m=>!doneMatches[m.id] && !yaJugado(m.id));
+  const pending = stageMatches.filter(m=> m.type==="new" && !doneMatches[m.id] && !yaJugado(m.id));
   const box=document.getElementById("matches");
   if(!pending.length){
-    box.innerHTML=`<div class="empty">🎉 Ya registraste todos los partidos de esta etapa en este dispositivo.<br>
-      Pásate a <b>Resultados → Comparar predicciones</b> para llevar el control, o a <b>Ranking</b> para ver el marcador general.<br><br>
-      <button class="btn btn-ghost" id="resetPlay">Volver a empezar esta etapa en este dispositivo</button></div>`;
+    box.innerHTML=`<div class="empty">🎉 Ya hiciste tus predicciones de esta ronda en este dispositivo.<br>
+      Revisa la pestaña <b>Ranking</b> para ver cómo van todos.<br><br>
+      <button class="btn btn-ghost" id="resetPlay">Volver a mostrar los partidos en este dispositivo</button></div>`;
     const rb=document.getElementById("resetPlay");
     if(rb) rb.addEventListener("click",()=>{
       if(confirm("Esto vuelve a mostrar los partidos de esta etapa en este dispositivo (no borra nada de la base). ¿Continuar?")){
@@ -663,7 +669,7 @@ function renderPlay(){
     });
     return;
   }
-  let html=`<div class="legend" style="margin-bottom:14px">Te faltan <b>${pending.length}</b> partidos por predecir en esta etapa. Los que ya se jugaron o que ya guardaste desaparecen de la lista.</div>`;
+  let html=`<div class="legend" style="margin-bottom:14px">Estás prediciendo la <b>ronda del 3er partido</b> (24–27 jun). Te faltan <b>${pending.length}</b> partidos. Al guardar, los que predigas desaparecen de la lista.</div>`;
   let lastDay="";
   pending.forEach(m=>{
     const isKO=m.phase==="ko";
