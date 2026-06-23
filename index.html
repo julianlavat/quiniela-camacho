@@ -253,7 +253,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.4</span></p>
+    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.5</span></p>
     <div class="rule"></div>
   </header>
 
@@ -758,6 +758,10 @@ function labelPick(m,val){
 }
 function renderCompare(){
   const box=document.getElementById("compare");
+  if(!box) return;
+  // asegurar etapa válida
+  const stages=activeStages();
+  if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
   if(!QUINIELAS.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas para comparar.</div>`;return;}
   // TODOS los partidos de la etapa actual, en orden. El resultado puede estar pendiente.
   const lista=MATCHES.filter(m=>m.stage===curStage);
@@ -909,8 +913,9 @@ document.querySelectorAll(".tab").forEach(t=>{
     if(v==="admin"){
       applyLock();
       document.getElementById("results").innerHTML=`<div class="loading">Sincronizando resultados…</div>`;
-      await loadAll();
-      await syncResults(true);   // auto-sync silencioso al entrar
+      try{ await loadAll(); }catch(e){ console.error("loadAll",e); }
+      try{ await syncResults(true); }catch(e){ console.error("sync",e); }
+      try{ await loadAll(); }catch(e){ console.error("loadAll2",e); }
       renderAdmin();
       renderCompare();
     }
