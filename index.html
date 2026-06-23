@@ -253,7 +253,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.3</span></p>
+    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.4</span></p>
     <div class="rule"></div>
   </header>
 
@@ -738,6 +738,9 @@ function renderAdmin(){
           ${optButtons("rshots",m.id,r.shots||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}])}</div></div>`;
       }
     }
+    if(done){
+      html+=`<div style="text-align:right;margin-top:10px"><button class="btn btn-ghost" data-act="clearres" data-m="${m.id}" style="font-size:12px;padding:6px 12px">🗑️ Limpiar resultado</button></div>`;
+    }
     html+=`</div></div>`;
   });
   document.getElementById("results").innerHTML=html;
@@ -923,6 +926,23 @@ document.querySelectorAll(".tab").forEach(t=>{
 });
 
 document.addEventListener("click",async e=>{
+  // Limpiar resultado completo de un partido (vuelve a pendiente)
+  const clr=e.target.closest("[data-act=clearres]");
+  if(clr){
+    if(!unlocked){toast("Necesitas el PIN para capturar resultados","err");return;}
+    const m=clr.dataset.m;
+    const mm=MATCHES.find(x=>x.id===m);
+    if(!confirm(`¿Limpiar el resultado de ${mm.a} vs ${mm.b}? Volverá a quedar pendiente.`)) return;
+    RESULTS[m]={};
+    try{
+      await sbUpsert("partidos",{id:m,grupo:mm.grp,equipo_a:mm.a,equipo_b:mm.b,
+        res_who:null,res_first:null,res_shots:null,res_ga:null,res_gb:null});
+      toast("Resultado limpiado","ok");
+      renderAdmin();
+      renderCompare();
+    }catch(err){toast("No se pudo limpiar","err");console.error(err);}
+    return;
+  }
   // Botones de marcador real (admin)
   const rsb=e.target.closest("[data-act=rscore]");
   if(rsb){
@@ -967,21 +987,25 @@ document.addEventListener("click",async e=>{
   const{f,m,v}=b.dataset;
   if(f==="who"||f==="first"||f==="shots"){
     curPicks[m]=curPicks[m]||{};
-    curPicks[m][f]=v;
-    if(f==="who"&&v!=="draw") delete curPicks[m].shots;
+    // toggle: si ya estaba esa opción, la quita
+    if(curPicks[m][f]===v){ delete curPicks[m][f]; }
+    else { curPicks[m][f]=v; }
+    if(f==="who"&&curPicks[m].who!=="draw") delete curPicks[m].shots;
     renderPlay();
   }else if(f==="rwho"||f==="rfirst"||f==="rshots"){
     if(!unlocked){toast("Necesitas el PIN para capturar resultados","err");return;}
     const key=f==="rwho"?"who":f==="rfirst"?"first":"shots";
     RESULTS[m]=RESULTS[m]||{};
-    RESULTS[m][key]=v;
-    if(key==="who"&&v!=="draw") delete RESULTS[m].shots;
+    // toggle: si tocas la opción ya seleccionada, se borra (vuelve a pendiente)
+    if(RESULTS[m][key]===v){ delete RESULTS[m][key]; }
+    else { RESULTS[m][key]=v; }
+    if(key==="who"&&RESULTS[m].who!=="draw") delete RESULTS[m].shots;
     const mm=MATCHES.find(x=>x.id===m);
     try{
       await sbUpsert("partidos",{id:m,grupo:mm.grp,equipo_a:mm.a,equipo_b:mm.b,
         res_who:RESULTS[m].who||null,res_first:RESULTS[m].first||null,res_shots:RESULTS[m].shots||null,
         res_ga:RESULTS[m].ga!=null?RESULTS[m].ga:null,res_gb:RESULTS[m].gb!=null?RESULTS[m].gb:null});
-      toast("Resultado guardado","ok");
+      toast(RESULTS[m][key]?"Resultado guardado":"Resultado borrado","ok");
       renderAdmin();
       renderCompare();
     }catch(err){toast("No se pudo guardar","err");console.error(err);}
