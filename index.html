@@ -184,6 +184,7 @@
     border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:700}
   .fbtn.on{background:var(--card2);color:var(--chalk);border-color:var(--gold)}
   .rank-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .rank-scope{font-size:13px;color:var(--chalk2);margin:0 0 10px;font-weight:600;text-align:center}
   .rrow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line)}
   .rrow:last-child{border-bottom:none}
   .rrow .pos{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
@@ -221,6 +222,13 @@
   .cmp-row .pr{color:var(--chalk2);font-size:12.5px}
   .cmp-row .mk{font-size:15px;width:20px;text-align:center}
   .cmp-pts{font-family:"Arial Narrow",sans-serif;font-weight:800;color:var(--gold);font-size:15px;min-width:34px;text-align:right}
+  .cmp-header{display:flex;flex-direction:column;gap:3px;margin:24px 0 12px;padding-top:16px;border-top:1px solid var(--line)}
+  .cmp-title{font-family:"Arial Narrow",sans-serif;font-weight:800;font-size:22px;color:var(--gold);text-transform:uppercase;letter-spacing:.5px}
+  .cmp-leg{font-size:12px;color:var(--chalk3)}
+  .cmp-pendiente{color:var(--chalk2)}
+  .cmp-vs{font-size:13px;font-weight:600}
+  .cmp-dash{color:var(--chalk3);font-weight:400;margin:0 2px}
+  .pend-tag{font-size:11px;color:var(--warn);background:rgba(231,184,75,.12);border:1px solid var(--gold2);padding:2px 8px;border-radius:7px;margin-left:6px;white-space:nowrap}
 
   /* Toast */
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(10px);
@@ -245,7 +253,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.1</span></p>
+    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.3</span></p>
     <div class="rule"></div>
   </header>
 
@@ -284,52 +292,39 @@
 
   <!-- ADMIN -->
   <section id="v-admin" class="hide">
-    <div class="filterbar" style="margin-bottom:14px">
-      <button class="fbtn on" data-sub="capture">Capturar</button>
-      <button class="fbtn" data-sub="compare">Comparar predicciones</button>
+    <div id="lock-screen" class="lock">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-title">Zona protegida</div>
+      <div class="lock-sub">Capturar y sincronizar resultados es solo para el administrador. Ingresa el PIN.</div>
+      <input type="password" id="pinInput" class="pin-input" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="off">
+      <button class="btn btn-gold" id="pinBtn">Desbloquear</button>
+      <div id="pinErr" class="pin-err"></div>
+    </div>
+    <div id="capture-content" class="hide">
+      <div class="syncbar">
+        <div class="txt">
+          <b style="color:var(--chalk)">Sincroniza los resultados</b> desde la base abierta del Mundial.
+          Trae el ganador y quién anotó primero automáticamente. Los tiros a gol (desempate) se ponen a mano.
+        </div>
+        <button class="btn btn-gold" id="syncBtn">↻ Sincronizar</button>
+      </div>
+      <div style="text-align:right;margin:0 0 10px">
+        <button class="btn btn-ghost" id="lockBtn" style="font-size:12px;padding:7px 12px">🔒 Bloquear de nuevo</button>
+      </div>
+      <div id="stage-bar-admin" class="stage-bar"></div>
+      <div id="results"><div class="loading">Cargando partidos…</div></div>
     </div>
 
-    <div id="sub-capture">
-      <div id="lock-screen" class="lock">
-        <div class="lock-icon">🔒</div>
-        <div class="lock-title">Zona protegida</div>
-        <div class="lock-sub">Capturar y sincronizar resultados es solo para el administrador. Ingresa el PIN.</div>
-        <input type="password" id="pinInput" class="pin-input" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="off">
-        <button class="btn btn-gold" id="pinBtn">Desbloquear</button>
-        <div id="pinErr" class="pin-err"></div>
-      </div>
-      <div id="capture-content" class="hide">
-        <div class="syncbar">
-          <div class="txt">
-            <b style="color:var(--chalk)">Sincroniza los resultados</b> desde la base abierta del Mundial.
-            Trae el ganador y quién anotó primero automáticamente. Los tiros a gol (desempate) se ponen a mano.
-          </div>
-          <button class="btn btn-gold" id="syncBtn">↻ Sincronizar</button>
-        </div>
-        <div style="text-align:right;margin:0 0 10px">
-          <button class="btn btn-ghost" id="lockBtn" style="font-size:12px;padding:7px 12px">🔒 Bloquear de nuevo</button>
-        </div>
-        <div id="stage-bar-admin" class="stage-bar"></div>
-        <div id="results"><div class="loading">Cargando partidos…</div></div>
-      </div>
+    <div class="cmp-header">
+      <span class="cmp-title">📊 Predicción vs Resultado</span>
+      <span class="cmp-leg">✅ acierto · ❌ falló · ⬜ no predijo</span>
     </div>
-
-    <div id="sub-compare" class="hide">
-      <div class="legend" style="margin-bottom:14px">
-        Aquí se compara, partido por partido, lo que predijo cada jugador contra el resultado real.
-        ✅ acierto · ❌ falló · ⬜ no predijo.
-      </div>
-      <div id="compare"><div class="loading">Cargando comparación…</div></div>
-    </div>
+    <div id="compare"><div class="loading">Cargando comparación…</div></div>
   </section>
 
   <!-- RANKING -->
   <section id="v-rank" class="hide">
-    <div class="filterbar">
-      <button class="fbtn on" data-f="all">Total</button>
-      <button class="fbtn" data-f="hist">Históricos</button>
-      <button class="fbtn" data-f="new">Nuevos</button>
-    </div>
+    <div id="rank-filterbar" class="filterbar" style="flex-wrap:wrap"></div>
     <div id="rankTable"><div class="loading">Cargando ranking…</div></div>
     <div style="margin-top:14px;text-align:center">
       <button class="btn btn-ghost" id="refreshBtn">↻ Actualizar ranking</button>
@@ -464,7 +459,6 @@ let RESULTS = {};
 let QUINIELAS = [];
 let curPicks = {};
 let curFilter = "all";
-let curSub = "capture";
 let curView = "play"; // pestaña activa: play | admin | rank
 let unlocked = false;
 try{ unlocked = localStorage.getItem("quiniela_admin")==="1"; }catch(e){ unlocked=false; }
@@ -762,37 +756,50 @@ function labelPick(m,val){
 function renderCompare(){
   const box=document.getElementById("compare");
   if(!QUINIELAS.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas para comparar.</div>`;return;}
-  // solo partidos con resultado capturado, en orden de la lista
-  const played=MATCHES.filter(m=>RESULTS[m.id]&&RESULTS[m.id].who);
-  if(!played.length){box.innerHTML=`<div class="empty">Todavía no hay resultados capturados.<br>Ve a <b>Capturar</b> y sincroniza.</div>`;return;}
+  // TODOS los partidos de la etapa actual, en orden. El resultado puede estar pendiente.
+  const lista=MATCHES.filter(m=>m.stage===curStage);
+  if(!lista.length){box.innerHTML=`<div class="empty">No hay partidos en esta etapa.</div>`;return;}
   let html="",lastDay="";
-  played.forEach(m=>{
-    const r=RESULTS[m.id];
+  lista.forEach(m=>{
+    const r=RESULTS[m.id]||{};
+    const jugado=!!r.who;
     if(m.day!==lastDay){html+=`<div class="daygroup">${m.day}</div>`;lastDay=m.day;}
+    // Encabezado: resultado real o "pendiente"
     let realWho;
-    if(m.type==="new" && r.ga!=null && r.gb!=null){
+    if(!jugado){
+      realWho = `<span class="cmp-vs">${fl(m.a)} ${m.a} <span class="cmp-dash">vs</span> ${m.b} ${fl(m.b)}</span> <span class="pend-tag">⏳ pendiente</span>`;
+    }else if(m.type==="new" && r.ga!=null && r.gb!=null){
       realWho = `${fl(m.a)} <span class="sc">${r.ga}-${r.gb}</span> ${fl(m.b)}`;
     }else{
       realWho = r.who==="a"?`${fl(m.a)} ${m.a}`:r.who==="b"?`${fl(m.b)} ${m.b}`:"🤝 Empate";
     }
     let extra="";
-    if(m.type==="new"&&r.first) extra=` · 1er gol: ${r.first==="none"?"🚫":(r.first==="a"?fl(m.a):fl(m.b))}`;
-    html+=`<div class="card"><div class="cmp-real">${realWho}${extra}</div><div class="cmp-list">`;
+    if(jugado && m.type==="new"&&r.first) extra=` · 1er gol: ${r.first==="none"?"🚫":(r.first==="a"?fl(m.a):fl(m.b))}`;
+    html+=`<div class="card"><div class="cmp-real${jugado?"":" cmp-pendiente"}">${realWho}${extra}</div><div class="cmp-list">`;
     QUINIELAS.forEach(q=>{
       const pick=(q.picks||{})[m.id];
       let mk,pr,pts="";
       const hasPick = pick && (pick.who || (pick.ga!=null && pick.gb!=null));
-      if(!hasPick){mk="⬜";pr="no predijo";}
-      else{
-        const s=scoreMatch(pick,r,m.type);
-        mk=s.hit?"✅":"❌";
+      if(!hasPick){
+        mk="⬜";pr="no predijo";
+      }else{
+        // Mostrar la predicción siempre
         if(m.type==="hist"){
           pr=labelPick(m,pick.who);
         }else{
           pr=`${pick.ga}-${pick.gb}`;
           if(pick.first) pr+=` · 1er: ${pick.first==="none"?"🚫":(pick.first==="a"?fl(m.a):fl(m.b))}`;
         }
-        pts=s.pts>0?`+${s.pts}`:"0";
+        if(jugado){
+          // Ya hay resultado: marcar acierto/error y puntos
+          const s=scoreMatch(pick,r,m.type);
+          mk=s.hit?"✅":"❌";
+          pts=s.pts>0?`+${s.pts}`:"0";
+        }else{
+          // Aún sin resultado: predicción visible, sin veredicto
+          mk="•";
+          pts="";
+        }
       }
       html+=`<div class="cmp-row"><span class="mk">${mk}</span><span class="nm">${q.jugador}</span><span class="pr">${pr}</span><span class="cmp-pts">${pts}</span></div>`;
     });
@@ -829,13 +836,33 @@ function scoreMatch(pick,res,type){
   if(res.who==="draw" && pick && pick.shots && pick.shots===res.shots) pts+=1;
   return {pts,hit};
 }
+// Dibuja los botones de filtro del ranking: General + cada fase con partidos
+function renderRankFilters(){
+  const bar=document.getElementById("rank-filterbar");
+  if(!bar) return;
+  const stages=activeStages();
+  let html=`<button class="fbtn${curFilter==="all"?" on":""}" data-f="all">🏆 General</button>`;
+  stages.forEach(s=>{
+    html+=`<button class="fbtn${curFilter===s.key?" on":""}" data-f="${s.key}">${s.label}</button>`;
+  });
+  bar.innerHTML=html;
+  bar.querySelectorAll(".fbtn").forEach(b=>{
+    b.addEventListener("click",()=>{
+      curFilter=b.dataset.f;
+      renderRankFilters();
+      renderRank(curFilter);
+    });
+  });
+}
+
+// filter: "all" = ranking general (todo el torneo) | "grupos"/"octavos"/... = solo esa fase
 function renderRank(filter){
   filter=filter||"all";
   const rows=QUINIELAS.map(q=>{
     let tot=0,hits=0,first=0,played=0;
     MATCHES.forEach(m=>{
-      if(filter==="hist"&&m.type!=="hist") return;
-      if(filter==="new"&&m.type!=="new") return;
+      // Si se filtra por fase, solo cuentan los partidos de esa fase.
+      if(filter!=="all" && m.stage!==filter) return;
       const pick=(q.picks||{})[m.id];
       const res=RESULTS[m.id];
       if(res&&res.who) played++;
@@ -848,7 +875,9 @@ function renderRank(filter){
   rows.sort((a,b)=>b.tot-a.tot||b.hits-a.hits||b.first-a.first||a.name.localeCompare(b.name));
   const box=document.getElementById("rankTable");
   if(!rows.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas.<br>Pásate a <b>Jugar</b> para registrar la primera.</div>`;return;}
-  let html=`<div class="rank-card">`;
+  const stages=activeStages();
+  const lbl = filter==="all" ? "Acumulado de todo el torneo" : (stages.find(s=>s.key===filter)?.label||filter);
+  let html=`<div class="rank-scope">${filter==="all"?"🏆":"📍"} ${lbl}</div><div class="rank-card">`;
   rows.forEach((r,i)=>{
     const cls=i===0?"p1":i===1?"p2":i===2?"p3":"";
     const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);
@@ -880,13 +909,14 @@ document.querySelectorAll(".tab").forEach(t=>{
       await loadAll();
       await syncResults(true);   // auto-sync silencioso al entrar
       renderAdmin();
-      if(curSub==="compare") renderCompare();
+      renderCompare();
     }
     if(v==="rank"){
       document.getElementById("rankTable").innerHTML=`<div class="loading">Actualizando…</div>`;
       await loadAll();
       await syncResults(true);   // refresca antes de calcular
       await loadAll();
+      renderRankFilters();
       renderRank(curFilter);
     }
   });
@@ -953,7 +983,7 @@ document.addEventListener("click",async e=>{
         res_ga:RESULTS[m].ga!=null?RESULTS[m].ga:null,res_gb:RESULTS[m].gb!=null?RESULTS[m].gb:null});
       toast("Resultado guardado","ok");
       renderAdmin();
-      if(curSub==="compare") renderCompare();
+      renderCompare();
     }catch(err){toast("No se pudo guardar","err");console.error(err);}
   }
 });
@@ -987,7 +1017,7 @@ document.getElementById("syncBtn").addEventListener("click",async()=>{
   btn.disabled=true;btn.textContent="Sincronizando…";
   await syncResults(false);
   renderAdmin();
-  if(curSub==="compare") renderCompare();
+  renderCompare();
   btn.disabled=false;btn.textContent="↻ Sincronizar";
 });
 
@@ -1022,29 +1052,8 @@ document.getElementById("lockBtn").addEventListener("click",()=>{
   toast("Captura bloqueada de nuevo","ok");
 });
 
-document.querySelectorAll(".fbtn[data-sub]").forEach(b=>{
-  b.addEventListener("click",async()=>{
-    document.querySelectorAll(".fbtn[data-sub]").forEach(x=>x.classList.remove("on"));
-    b.classList.add("on");
-    curSub=b.dataset.sub;
-    document.getElementById("sub-capture").classList.toggle("hide",curSub!=="capture");
-    document.getElementById("sub-compare").classList.toggle("hide",curSub!=="compare");
-    if(curSub==="compare"){
-      document.getElementById("compare").innerHTML=`<div class="loading">Cargando comparación…</div>`;
-      await loadAll();
-      renderCompare();
-    }
-  });
-});
-
-document.querySelectorAll(".fbtn[data-f]").forEach(b=>{
-  b.addEventListener("click",()=>{
-    document.querySelectorAll(".fbtn[data-f]").forEach(x=>x.classList.remove("on"));
-    b.classList.add("on");curFilter=b.dataset.f;renderRank(curFilter);
-  });
-});
 document.getElementById("refreshBtn").addEventListener("click",async()=>{
-  await loadAll();await syncResults(true);await loadAll();renderRank(curFilter);
+  await loadAll();await syncResults(true);await loadAll();renderRankFilters();renderRank(curFilter);
   toast("Ranking actualizado","ok");
 });
 
@@ -1062,7 +1071,7 @@ async function autoTick(){
     await loadAll();
     const changed = await syncResults(true); // silencioso
     await loadAll();
-    if(curView==="admin"){ renderAdmin(); if(curSub==="compare") renderCompare(); }
+    if(curView==="admin"){ renderAdmin(); renderCompare(); }
     if(curView==="rank"){ renderRank(curFilter); }
     if(changed>0) toast("Resultados actualizados solos","ok");
   }catch(e){ console.error("auto-sync",e); }
