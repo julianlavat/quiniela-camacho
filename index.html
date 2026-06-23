@@ -212,9 +212,13 @@
   .pin-err{color:#ff8080;font-size:13px;margin-top:10px;min-height:18px}
 
   /* Comparación predicción vs resultado */
-  .cmp-real{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;
-    background:var(--card2);border-bottom:1px solid var(--line);font-weight:700;font-size:14px}
-  .cmp-real .sc{font-family:"Arial Narrow",sans-serif;font-size:20px;color:var(--gold);margin:0 4px}
+  .cmp-real{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 12px;
+    background:var(--card2);border-bottom:1px solid var(--line);font-weight:700;font-size:14px;flex-wrap:wrap;text-align:center}
+  .cmp-real .sc{font-family:"Arial Narrow",sans-serif;font-size:22px;color:var(--gold);margin:0 6px}
+  .cmp-team{font-size:13px;color:var(--chalk2);font-weight:600}
+  .cmp-team.win{color:var(--gold);font-weight:800}
+  .cmp-emp{font-size:12px;color:var(--chalk2);margin:0 6px;font-style:italic}
+  .cmp-extra{text-align:center;font-size:11.5px;color:var(--chalk3);padding:5px 12px;background:var(--card2);border-bottom:1px solid var(--line)}
   .cmp-real .pend{font-size:12px;color:var(--chalk3);font-weight:600}
   .cmp-list{padding:6px 0}
   .cmp-row{display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:13px}
@@ -253,7 +257,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.5</span></p>
+    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.6</span></p>
     <div class="rule"></div>
   </header>
 
@@ -763,26 +767,29 @@ function renderCompare(){
   const stages=activeStages();
   if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
   if(!QUINIELAS.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas para comparar.</div>`;return;}
-  // TODOS los partidos de la etapa actual, en orden. El resultado puede estar pendiente.
-  const lista=MATCHES.filter(m=>m.stage===curStage);
-  if(!lista.length){box.innerHTML=`<div class="empty">No hay partidos en esta etapa.</div>`;return;}
+  // Solo partidos YA JUGADOS de la etapa actual (los pendientes no se muestran para evitar confusión)
+  const lista=MATCHES.filter(m=>m.stage===curStage && RESULTS[m.id] && RESULTS[m.id].who);
+  if(!lista.length){box.innerHTML=`<div class="empty">Todavía no hay partidos jugados en esta etapa.<br>Aquí aparecerá la comparación conforme se jueguen.</div>`;return;}
   let html="",lastDay="";
   lista.forEach(m=>{
     const r=RESULTS[m.id]||{};
-    const jugado=!!r.who;
     if(m.day!==lastDay){html+=`<div class="daygroup">${m.day}</div>`;lastDay=m.day;}
-    // Encabezado: resultado real o "pendiente"
-    let realWho;
-    if(!jugado){
-      realWho = `<span class="cmp-vs">${fl(m.a)} ${m.a} <span class="cmp-dash">vs</span> ${m.b} ${fl(m.b)}</span> <span class="pend-tag">⏳ pendiente</span>`;
-    }else if(m.type==="new" && r.ga!=null && r.gb!=null){
-      realWho = `${fl(m.a)} <span class="sc">${r.ga}-${r.gb}</span> ${fl(m.b)}`;
+    // Encabezado: partido completo con banderas, marcador y ganador resaltado
+    const winA = r.who==="a", winB = r.who==="b";
+    const ladoA = `<span class="cmp-team${winA?" win":""}">${fl(m.a)} ${m.a}</span>`;
+    const ladoB = `<span class="cmp-team${winB?" win":""}">${m.b} ${fl(m.b)}</span>`;
+    let centro;
+    if(r.ga!=null && r.gb!=null){
+      centro = `<span class="sc">${r.ga} - ${r.gb}</span>`;
+    }else if(r.who==="draw"){
+      centro = `<span class="cmp-emp">empate</span>`;
     }else{
-      realWho = r.who==="a"?`${fl(m.a)} ${m.a}`:r.who==="b"?`${fl(m.b)} ${m.b}`:"🤝 Empate";
+      centro = `<span class="cmp-dash">${r.who==="a"?"ganó →":"← ganó"}</span>`;
     }
+    let realWho = `${ladoA}${centro}${ladoB}`;
     let extra="";
-    if(jugado && m.type==="new"&&r.first) extra=` · 1er gol: ${r.first==="none"?"🚫":(r.first==="a"?fl(m.a):fl(m.b))}`;
-    html+=`<div class="card"><div class="cmp-real${jugado?"":" cmp-pendiente"}">${realWho}${extra}</div><div class="cmp-list">`;
+    if(m.type==="new"&&r.first) extra=`<div class="cmp-extra">1er gol: ${r.first==="none"?"🚫 sin goles":(r.first==="a"?fl(m.a)+" "+m.a:fl(m.b)+" "+m.b)}</div>`;
+    html+=`<div class="card"><div class="cmp-real">${realWho}</div>${extra}<div class="cmp-list">`;
     QUINIELAS.forEach(q=>{
       const pick=(q.picks||{})[m.id];
       let mk,pr,pts="";
@@ -790,23 +797,15 @@ function renderCompare(){
       if(!hasPick){
         mk="⬜";pr="no predijo";
       }else{
-        // Mostrar la predicción siempre
         if(m.type==="hist"){
           pr=labelPick(m,pick.who);
         }else{
           pr=`${pick.ga}-${pick.gb}`;
           if(pick.first) pr+=` · 1er: ${pick.first==="none"?"🚫":(pick.first==="a"?fl(m.a):fl(m.b))}`;
         }
-        if(jugado){
-          // Ya hay resultado: marcar acierto/error y puntos
-          const s=scoreMatch(pick,r,m.type);
-          mk=s.hit?"✅":"❌";
-          pts=s.pts>0?`+${s.pts}`:"0";
-        }else{
-          // Aún sin resultado: predicción visible, sin veredicto
-          mk="•";
-          pts="";
-        }
+        const s=scoreMatch(pick,r,m.type);
+        mk=s.hit?"✅":"❌";
+        pts=s.pts>0?`+${s.pts}`:"0";
       }
       html+=`<div class="cmp-row"><span class="mk">${mk}</span><span class="nm">${q.jugador}</span><span class="pr">${pr}</span><span class="cmp-pts">${pts}</span></div>`;
     });
