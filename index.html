@@ -811,19 +811,20 @@ function renderCompare(){
       const pick=(q.picks||{})[m.id];
       let mk,pr,pts="";
       const hasPick = pick && (pick.who || (pick.ga!=null && pick.gb!=null));
-      if(!hasPick){
-        mk="⬜";pr="no predijo";
+      
+      // Ocultar usuarios que no hicieron predicción para este partido específico
+      if(!hasPick) return;
+
+      if(m.type==="hist"){
+        pr=labelPick(m,pick.who);
       }else{
-        if(m.type==="hist"){
-          pr=labelPick(m,pick.who);
-        }else{
-          pr=`${pick.ga}-${pick.gb}`;
-          if(pick.first) pr+=` · 1er: ${pick.first==="none"?"🚫":(pick.first==="a"?fl(m.a):fl(m.b))}`;
-        }
-        const s=scoreMatch(pick,r,m.type);
-        mk=s.hit?"✅":"❌";
-        pts=s.pts>0?`+${s.pts}`:"0";
+        pr=`${pick.ga}-${pick.gb}`;
+        if(pick.first) pr+=` · 1er: ${pick.first==="none"?"🚫":(pick.first==="a"?fl(m.a):fl(m.b))}`;
       }
+      const s=scoreMatch(pick,r,m.type);
+      mk=s.hit?"✅":"❌";
+      pts=s.pts>0?`+${s.pts}`:"0";
+      
       html+=`<div class="cmp-row"><span class="mk">${mk}</span><span class="nm">${q.jugador}</span><span class="pr">${pr}</span><span class="cmp-pts">${pts}</span></div>`;
     });
     html+=`</div></div>`;
