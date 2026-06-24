@@ -509,7 +509,18 @@ async function loadAll(){
     const [parts,quis]=await Promise.all([sbGet("partidos"),sbGet("quinielas")]);
     RESULTS={};
     parts.forEach(p=>{RESULTS[p.id]={who:p.res_who,first:p.res_first,shots:p.res_shots,ga:p.res_ga,gb:p.res_gb}});
-    QUINIELAS=quis;
+    
+    // Consolidar quinielas por jugador para evitar duplicados en la visualización
+    const consolidated = {};
+    quis.forEach(q => {
+      const name = q.jugador.trim();
+      if (!consolidated[name]) {
+        consolidated[name] = { jugador: name, picks: {} };
+      }
+      // Combinar los picks (predicciones) del jugador
+      Object.assign(consolidated[name].picks, q.picks || {});
+    });
+    QUINIELAS = Object.values(consolidated);
   }catch(e){toast("No se pudo conectar con la base",("err"));console.error(e);}
 }
 
@@ -1025,22 +1036,32 @@ document.addEventListener("click",async e=>{
 document.getElementById("saveBtn").addEventListener("click",async()=>{
   const name=document.getElementById("player").value.trim();
   if(!name){toast("Escribe tu nombre","err");return;}
+  
+  // Validar si el participante ya existe
+  const existingPlayer = QUINIELAS.find(q => q.jugador.toLowerCase() === name.toLowerCase());
+  if (existingPlayer) {
+    if(!confirm(`Ya existe un participante llamado "${existingPlayer.jugador}". ¿Deseas añadir estas predicciones a su cuenta?`)) {
+      return;
+    }
+  }
+
   const predichos=Object.keys(curPicks).filter(id=>{
     const p=curPicks[id]; if(!p) return false;
-    return p.who || (p.ga!=null && p.gb!=null); // histórico (who) o nuevo (marcador)
+    return p.who || (p.ga!=null && p.gb!=null);
   });
   if(!predichos.length){toast("Elige al menos un resultado","err");return;}
+  
   const btn=document.getElementById("saveBtn");
   btn.disabled=true;btn.textContent="Guardando…";
   try{
     await sbInsert("quinielas",{jugador:name,picks:curPicks});
-    // marcar como cubiertos en este dispositivo para que desaparezcan
     predichos.forEach(id=>{doneMatches[id]=true;});
     saveDone();
     burstConfetti();
     toast(`¡Quiniela de ${name} guardada! (${predichos.length} partidos)`,"ok");
     curPicks={};
     document.getElementById("player").value="";
+    await loadAll(); // Recargar para consolidar
     renderPlay();
   }catch(err){toast("Error al guardar","err");console.error(err);}
   btn.disabled=false;btn.textContent="Guardar quiniela";
