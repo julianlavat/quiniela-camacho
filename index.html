@@ -467,7 +467,7 @@ let curStage = "grupos"; // etapa seleccionada en Jugar/Resultados
 let RESULTS = {};
 let QUINIELAS = [];
 let curPicks = {};
-let curFilter = "all";
+let curFilter = "grupos";
 let curView = "play"; // pestaña activa: play | admin | rank
 let unlocked = false;
 try{ unlocked = localStorage.getItem("quiniela_admin")==="1"; }catch(e){ unlocked=false; }
@@ -865,7 +865,8 @@ function renderRankFilters(){
   const bar=document.getElementById("rank-filterbar");
   if(!bar) return;
   const stages=activeStages();
-  let html=`<button class="fbtn${curFilter==="all"?" on":""}" data-f="all">🏆 General</button>`;
+  // Eliminamos el botón "General" para centrarnos en las etapas
+  let html="";
   stages.forEach(s=>{
     html+=`<button class="fbtn${curFilter===s.key?" on":""}" data-f="${s.key}">${s.label}</button>`;
   });
@@ -881,12 +882,21 @@ function renderRankFilters(){
 
 // filter: "all" = ranking general (todo el torneo) | "grupos"/"octavos"/... = solo esa fase
 function renderRank(filter){
-  filter=filter||"all";
+  const stages=activeStages();
+  // Si no hay filtro o es "all" (que ya no existe), seleccionamos la primera etapa activa
+  if(!filter || filter === "all") filter = stages[0]?.key || "grupos";
+  curFilter = filter;
+
   const rows=QUINIELAS.map(q=>{
     let tot=0,hits=0,first=0,played=0;
     MATCHES.forEach(m=>{
-      // Si se filtra por fase, solo cuentan los partidos de esa fase.
-      if(filter!=="all" && m.stage!==filter) return;
+      // Solo cuentan los partidos de la etapa seleccionada
+      if(m.stage!==filter) return;
+      
+      // Filtro adicional: Solo partidos de tipo "new" (la ronda vigente)
+      // Los partidos históricos ("hist") ya no suman al ranking según lo solicitado
+      if(m.type !== "new") return;
+
       const pick=(q.picks||{})[m.id];
       const res=RESULTS[m.id];
       if(res&&res.who) played++;
@@ -900,8 +910,8 @@ function renderRank(filter){
   const box=document.getElementById("rankTable");
   if(!rows.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas.<br>Pásate a <b>Jugar</b> para registrar la primera.</div>`;return;}
   const stages=activeStages();
-  const lbl = filter==="all" ? "Acumulado de todo el torneo" : (stages.find(s=>s.key===filter)?.label||filter);
-  let html=`<div class="rank-scope">${filter==="all"?"🏆":"📍"} ${lbl}</div><div class="rank-card">`;
+  const lbl = stages.find(s=>s.key===filter)?.label||filter;
+  let html=`<div class="rank-scope">📍 ${lbl} (Ronda vigente)</div><div class="rank-card">`;
   rows.forEach((r,i)=>{
     const cls=i===0?"p1":i===1?"p2":i===2?"p3":"";
     const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);
