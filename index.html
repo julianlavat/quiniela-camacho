@@ -5,21 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quiniela Familiar · Mundial 2026</title>
 <style>
-  /* ====== IDENTIDAD VISUAL ======
-     Verde césped profundo + dorado trofeo. Tarjetas tipo "cédula de partido".
-     Display: Bebas-like via system condensed; cuerpo: system sans. */
+  /* ====== IDENTIDAD VISUAL ====== */
   :root{
-    --pitch:#0a3d2e;        /* verde césped oscuro de fondo */
+    --pitch:#0a3d2e;
     --pitch2:#0d4a37;
-    --line:#1c5f49;          /* líneas de cancha */
+    --line:#1c5f49;
     --card:#0f2a22;
     --card2:#14362b;
-    --chalk:#f2f5f0;         /* tiza / texto */
+    --chalk:#f2f5f0;
     --chalk2:#a9c4ba;
     --chalk3:#6f9085;
-    --gold:#e7b84b;          /* trofeo (acento principal) */
+    --gold:#e7b84b;
     --gold2:#c9991f;
-    --win:#2bb673;           /* verde brillante (positivo) */
+    --win:#2bb673;
     --info:#3da5ff;
     --warn:#e7b84b;
     --r:16px;
@@ -72,8 +70,8 @@
   .stage-btn.on{background:linear-gradient(180deg,var(--gold),var(--gold2));color:#fff;border-color:var(--gold)}
 
   /* Legend */
-  .legend{font-size:12.5px;color:var(--chalk2);background:var(--card);border:1px solid var(--line);
-    border-radius:12px;padding:12px 14px;margin:0 0 16px;line-height:1.6}
+  .legend{font-size:12.5px;color:var(--chalk2);background:rgba(15,42,34,0.7);backdrop-filter:blur(6px);
+    border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 16px;line-height:1.6}
   .legend b{color:var(--chalk)}
   .legend .pt{display:inline-block;min-width:30px;text-align:center;font-weight:800;color:var(--gold)}
 
@@ -96,12 +94,13 @@
   .howto-foot{font-size:12px;color:var(--chalk2);line-height:1.5;margin-top:6px;padding-top:4px}
   .howto-foot b{color:var(--gold)}
 
-  /* Name bar */
-  .namebar{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}
-  .namebar input{flex:1;min-width:160px}
-  input[type=text]{width:100%;padding:12px 14px;background:var(--card2);border:1px solid var(--line);
-    border-radius:12px;color:var(--chalk);font-size:15px;outline:none}
-  input[type=text]:focus{border-color:var(--gold)}
+  /* Name bar / Selector de jugador */
+  .namebar{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap;align-items:center}
+  .namebar select{flex:1;min-width:160px;padding:12px 14px;background:var(--card2);border:1px solid var(--line);
+    border-radius:12px;color:var(--chalk);font-size:15px;outline:none;cursor:pointer}
+  .namebar select:focus{border-color:var(--gold)}
+  .namebar select option{background:var(--card2);color:var(--chalk)}
+  .namebar .btn{flex-shrink:0}
 
   /* Day group header */
   .daygroup{display:flex;align-items:center;gap:12px;margin:28px 2px 12px;
@@ -110,8 +109,8 @@
     text-shadow:0 2px 10px rgba(0,0,0,.5)}
   .daygroup::after{content:"";flex:1;height:1px;background:var(--line)}
 
-  /* Match card — "cédula de partido" */
-  .card{background:linear-gradient(180deg,var(--card2),var(--card));
+  /* Match card — con transparencia y blur */
+  .card{background:rgba(15,42,34,0.75);backdrop-filter:blur(8px);
     border:1px solid var(--line);border-radius:var(--r);padding:0;margin:0 0 14px;
     overflow:hidden;box-shadow:var(--shadow)}
   .card .top{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
@@ -172,7 +171,8 @@
 
   /* Admin sync banner */
   .syncbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;
-    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 16px}
+    background:rgba(15,42,34,0.8);backdrop-filter:blur(6px);
+    border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 16px}
   .syncbar .txt{flex:1;min-width:180px;font-size:12.5px;color:var(--chalk2);line-height:1.5}
   .status{font-size:11px;padding:3px 9px;border-radius:7px;font-weight:700}
   .status.pend{background:rgba(231,184,75,.12);color:var(--gold);border:1px solid var(--gold2)}
@@ -184,7 +184,8 @@
   .fbtn{flex:1;padding:9px 8px;border:1px solid var(--line);background:var(--card);color:var(--chalk2);
     border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:700}
   .fbtn.on{background:var(--card2);color:var(--chalk);border-color:var(--gold)}
-  .rank-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .rank-card{background:rgba(15,42,34,0.8);backdrop-filter:blur(6px);
+    border:1px solid var(--line);border-radius:14px;overflow:hidden}
   .rank-scope{font-size:13px;color:var(--chalk2);margin:0 0 10px;font-weight:600;text-align:center}
   .ronda-nota{font-size:12.5px;line-height:1.5;color:var(--chalk2);background:rgba(231,184,75,.08);
     border:1px solid var(--gold2);border-radius:12px;padding:11px 14px;margin:0 0 16px}
@@ -205,13 +206,23 @@
   /* Modal para detalles del jugador */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;}
   .modal-overlay.show{display:flex;}
-  .modal-box{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;padding:24px;position:relative;}
+  .modal-box{background:rgba(15,42,34,0.9);backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:16px;max-width:700px;width:90%;max-height:80vh;overflow-y:auto;padding:24px;position:relative;}
   .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--chalk);font-size:28px;cursor:pointer;}
   .modal-title{color:var(--gold);margin:0 0 12px;font-size:22px;font-weight:800;font-family:"Arial Narrow",sans-serif;}
-  .modal-detail-item{border-bottom:1px solid var(--line);padding:8px 0;display:flex;justify-content:space-between;font-size:14px;}
-  .modal-detail-item .match{font-weight:600;color:var(--chalk);}
-  .modal-detail-item .pick{color:var(--gold);}
-  .modal-detail-item .empty{color:var(--chalk3);}
+  .modal-grid{display:grid;grid-template-columns:2fr 1.5fr 1.5fr;gap:8px;font-size:14px;}
+  .modal-grid .header{font-weight:700;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:6px;}
+  .modal-grid .cell{padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;}
+  .modal-grid .cell .pick{color:var(--gold);}
+  .modal-grid .cell .empty{color:var(--chalk3);}
+  .modal-grid .cell .result{color:var(--chalk2);}
+  .modal-grid .cell .result .win{color:var(--gold);font-weight:700;}
+
+  /* Estilos para details/summary en resultados */
+  details{ margin-top:16px; border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:rgba(15,42,34,0.7); backdrop-filter:blur(6px); }
+  details summary{ cursor:pointer; font-weight:bold; color:var(--gold); font-size:16px; }
+  details summary:hover{ opacity:0.8; }
+  details[open] summary{ margin-bottom:8px; }
 
   .loading{text-align:center;color:var(--chalk2);padding:34px;font-size:14px}
   .empty{text-align:center;color:var(--chalk2);padding:30px 20px;font-size:14px;line-height:1.6}
@@ -227,11 +238,6 @@
   .pin-input:focus{border-color:var(--gold);outline:none}
   .pin-err{color:#ff8080;font-size:13px;margin-top:10px;min-height:18px}
 
-  /* Comparación predicción vs resultado (eliminada, pero mantenemos estilos por si acaso) */
-  .cmp-real,.cmp-team,.cmp-extra,.cmp-row,.cmp-header,.cmp-title,.cmp-leg,.cmp-pendiente,.cmp-vs,.cmp-dash,.pend-tag{display:none;}
-
-  .cmp-list{display:none;}
-
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(10px);
     background:var(--pitch2);color:var(--chalk);padding:13px 20px;border-radius:12px;font-size:14px;
     font-weight:600;z-index:100;box-shadow:var(--shadow);opacity:0;transition:.22s;pointer-events:none;
@@ -244,6 +250,7 @@
     .team .nm{font-size:12px}
     .opt{min-width:64px;font-size:12px}
     .daygroup{font-size:24px}
+    .modal-grid{grid-template-columns:1fr 1fr 1fr;font-size:12px;}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -254,7 +261,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.8</span></p>
+    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.9</span></p>
     <div class="rule"></div>
   </header>
 
@@ -267,7 +274,9 @@
   <!-- JUGAR -->
   <section id="v-play">
     <div class="namebar">
-      <input type="text" id="player" placeholder="Tu nombre" autocomplete="off">
+      <select id="playerSelect">
+        <option value="">-- Selecciona tu nombre --</option>
+      </select>
       <button class="btn btn-go" id="saveBtn">Guardar quiniela</button>
     </div>
     <div id="stage-bar-play" class="stage-bar"></div>
@@ -304,7 +313,7 @@
 
   <!-- RANKING -->
   <section id="v-rank" class="hide">
-    <div class="ronda-nota">📌 Ranking de la <b>2ª ronda</b> (segundos partidos, 18–23 jun). El <b>miércoles 24 de junio</b> comienza la ronda del 3er partido.</div>
+    <div id="rankNota" class="ronda-nota">📌 Ranking de la <b>Fase de Grupos</b>.</div>
     <div id="rank-filterbar" class="filterbar" style="flex-wrap:wrap"></div>
     <div id="rankTable"><div class="loading">Cargando ranking…</div></div>
     <div style="margin-top:14px;text-align:center">
@@ -333,10 +342,8 @@ const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const HEADERS = {"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"};
 const OPENFOOTBALL_URL = "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json";
 
-// ====== PIN de administrador (cámbialo por el tuyo de 4 dígitos) ======
 const ADMIN_PIN = "2026";
 
-// Banderas emoji por equipo (ES)
 const FLAG = {
   "México":"🇲🇽","Corea del Sur":"🇰🇷","Chequia":"🇨🇿","Sudáfrica":"🇿🇦","Suiza":"🇨🇭","Bosnia":"🇧🇦",
   "Canadá":"🇨🇦","Qatar":"🇶🇦","Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿",
@@ -347,7 +354,6 @@ const FLAG = {
   "Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴","Portugal":"🇵🇹","RD Congo":"🇨🇩",
   "Uzbekistán":"🇺🇿","Colombia":"🇨🇴","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croacia":"🇭🇷","Ghana":"🇬🇭","Panamá":"🇵🇦"
 };
-// ES -> EN (para casar con openfootball)
 const EN = {
   "México":"Mexico","Corea del Sur":"South Korea","Chequia":"Czech Republic","Sudáfrica":"South Africa",
   "Suiza":"Switzerland","Bosnia":"Bosnia & Herzegovina","Canadá":"Canada","Qatar":"Qatar","Brasil":"Brazil",
@@ -417,7 +423,6 @@ const MATCHES = [
   {id:"n36",day:"Sábado 27 jun",grp:"J",a:"Jordania",b:"Argentina",type:"new",stage:"grupos"},
 ];
 
-// Etapas del torneo
 const STAGES = [
   {key:"grupos",  label:"Fase de Grupos"},
   {key:"octavos", label:"Octavos"},
@@ -432,7 +437,7 @@ let curStage = "grupos";
 let RESULTS = {};
 let QUINIELAS = [];
 let curPicks = {};
-let curFilter = "all";
+let curFilter = "grupos"; // ya no hay "all"; por defecto grupos
 let curView = "play";
 let unlocked = false;
 try{ unlocked = localStorage.getItem("quiniela_admin")==="1"; }catch(e){ unlocked=false; }
@@ -455,11 +460,6 @@ async function sbGet(table){
   if(!r.ok) throw new Error(await r.text());
   return r.json();
 }
-async function sbInsert(table,obj){
-  const r=await fetch(`${SB_URL}/rest/v1/${table}`,{method:"POST",headers:{...HEADERS,Prefer:"return=representation"},body:JSON.stringify(obj)});
-  if(!r.ok) throw new Error(await r.text());
-  return r.json();
-}
 async function sbUpsert(table,obj){
   const r=await fetch(`${SB_URL}/rest/v1/${table}`,{method:"POST",headers:{...HEADERS,Prefer:"resolution=merge-duplicates"},body:JSON.stringify(obj)});
   if(!r.ok) throw new Error(await r.text());
@@ -467,9 +467,7 @@ async function sbUpsert(table,obj){
 }
 function fl(team){return FLAG[team]||"⚽"}
 
-// ====== NUEVA FUNCIÓN UPSERT PARA QUINIELAS (evita duplicados) ======
 async function upsertQuiniela(obj) {
-  // Buscar si ya existe un registro para este jugador
   const resp = await fetch(
     `${SB_URL}/rest/v1/quinielas?jugador=eq.${encodeURIComponent(obj.jugador)}`,
     { headers: HEADERS }
@@ -478,7 +476,6 @@ async function upsertQuiniela(obj) {
   const data = await resp.json();
 
   if (data && data.length > 0) {
-    // Ya existe: actualizar (PATCH)
     const id = data[0].id;
     const r = await fetch(`${SB_URL}/rest/v1/quinielas?id=eq.${id}`, {
       method: 'PATCH',
@@ -488,7 +485,6 @@ async function upsertQuiniela(obj) {
     if (!r.ok) throw new Error(await r.text());
     return r.json();
   } else {
-    // No existe: insertar
     const r = await fetch(`${SB_URL}/rest/v1/quinielas`, {
       method: 'POST',
       headers: { ...HEADERS, 'Prefer': 'return=representation' },
@@ -504,7 +500,6 @@ async function loadAll(){
     const [parts,quis]=await Promise.all([sbGet("partidos"),sbGet("quinielas")]);
     RESULTS={};
     parts.forEach(p=>{RESULTS[p.id]={who:p.res_who,first:p.res_first,shots:p.res_shots,ga:p.res_ga,gb:p.res_gb}});
-    // Deduplicar: quedarse con el registro más reciente por jugador (mayor id)
     const map = new Map();
     quis.forEach(q => {
       const existing = map.get(q.jugador);
@@ -513,7 +508,8 @@ async function loadAll(){
       }
     });
     QUINIELAS = Array.from(map.values());
-  }catch(e){toast("No se pudo conectar con la base",("err"));console.error(e);}
+    return QUINIELAS; // para usar en el select
+  }catch(e){toast("No se pudo conectar con la base",("err"));console.error(e); return [];}
 }
 
 // ============================================================
@@ -569,7 +565,7 @@ async function syncResults(silent){
 }
 
 // ============================================================
-//  VISTA: JUGAR
+//  VISTA: JUGAR (con selector de jugador)
 // ============================================================
 function deriveFromScore(ga,gb){
   if(ga==null||gb==null) return null;
@@ -609,23 +605,6 @@ function scoreSelector(mid,p){
   </div>${derived}`;
 }
 
-function scoreSelectorAdmin(mid,r){
-  const ga=r.ga, gb=r.gb;
-  return `<div class="score-pick">
-    <div class="score-col"><span class="score-num" id="rga-${mid}">${ga==null?"–":ga}</span>
-      <div class="score-steps">
-        <button class="score-btn" data-act="rscore" data-side="a" data-dir="-1" data-m="${mid}">−</button>
-        <button class="score-btn" data-act="rscore" data-side="a" data-dir="1" data-m="${mid}">+</button>
-      </div></div>
-    <span class="score-dash">–</span>
-    <div class="score-col"><span class="score-num" id="rgb-${mid}">${gb==null?"–":gb}</span>
-      <div class="score-steps">
-        <button class="score-btn" data-act="rscore" data-side="b" data-dir="-1" data-m="${mid}">−</button>
-        <button class="score-btn" data-act="rscore" data-side="b" data-dir="1" data-m="${mid}">+</button>
-      </div></div>
-  </div>`;
-}
-
 function optButtons(field,mid,cur,opts){
   return `<div class="opts">`+opts.map(o=>
     `<button class="opt${cur===o.v?' sel':''}" data-act="pick" data-f="${field}" data-m="${mid}" data-v="${o.v}">${o.f?`<span class="f">${o.f}</span>`:""}${o.t}</button>`
@@ -643,6 +622,59 @@ function renderStageBar(containerId, onPick){
     b.addEventListener("click",()=>{ curStage=b.dataset.stage; onPick(); });
   });
 }
+
+function populatePlayerSelect() {
+  const select = document.getElementById('playerSelect');
+  const current = select.value;
+  select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+  // Obtener nombres únicos de QUINIELAS que tengan al menos un pick
+  const names = new Set();
+  QUINIELAS.forEach(q => {
+    if (q.picks && Object.keys(q.picks).length > 0) {
+      names.add(q.jugador);
+    }
+  });
+  names.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
+  if (current && names.has(current)) select.value = current;
+  // Si no hay jugadores, ocultar botón guardar?
+  const btn = document.getElementById('saveBtn');
+  if (names.size === 0) {
+    btn.disabled = true;
+    btn.textContent = 'Sin participantes';
+  } else {
+    btn.disabled = false;
+    btn.textContent = 'Guardar quiniela';
+  }
+}
+
+function loadPlayerPicks(name) {
+  const player = QUINIELAS.find(q => q.jugador === name);
+  if (player && player.picks) {
+    curPicks = JSON.parse(JSON.stringify(player.picks));
+    // Marcar los partidos que ya predijo en esta etapa para ocultarlos
+    const stageMatches = MATCHES.filter(m => m.stage === curStage && m.type === 'new');
+    stageMatches.forEach(m => {
+      if (curPicks[m.id] && (curPicks[m.id].who || (curPicks[m.id].ga != null && curPicks[m.id].gb != null))) {
+        doneMatches[m.id] = true;
+      } else {
+        delete doneMatches[m.id];
+      }
+    });
+    saveDone();
+  } else {
+    curPicks = {};
+    // limpiar doneMatches para esta etapa
+    MATCHES.filter(m => m.stage === curStage && m.type === 'new').forEach(m => delete doneMatches[m.id]);
+    saveDone();
+  }
+  renderPlay();
+}
+
 function renderPlay(){
   const stages=activeStages();
   if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
@@ -652,18 +684,18 @@ function renderPlay(){
   const pending = stageMatches.filter(m=> m.type==="new" && !doneMatches[m.id] && !yaJugado(m.id));
   const box=document.getElementById("matches");
   if(!pending.length){
-    box.innerHTML=`<div class="empty">🎉 Ya hiciste tus predicciones de esta ronda en este dispositivo.<br>
+    box.innerHTML=`<div class="empty">🎉 Ya no hay partidos pendientes por predecir en esta etapa.<br>
       Revisa la pestaña <b>Ranking</b> para ver cómo van todos.<br><br>
       <button class="btn btn-ghost" id="resetPlay">Volver a mostrar los partidos en este dispositivo</button></div>`;
     const rb=document.getElementById("resetPlay");
     if(rb) rb.addEventListener("click",()=>{
-      if(confirm("Esto vuelve a mostrar los partidos de esta etapa en este dispositivo (no borra nada de la base). ¿Continuar?")){
+      if(confirm("¿Volver a mostrar los partidos de esta etapa? (no borra datos guardados)")){
         stageMatches.forEach(m=>{delete doneMatches[m.id];});saveDone();renderPlay();
       }
     });
     return;
   }
-  let html=`<div class="legend" style="margin-bottom:14px">Estás prediciendo la <b>ronda del 3er partido</b> (24–27 jun). Te faltan <b>${pending.length}</b> partidos. Al guardar, los que predigas desaparecen de la lista.</div>`;
+  let html=`<div class="legend" style="margin-bottom:14px">Estás prediciendo la etapa <b>${STAGES.find(s=>s.key===curStage)?.label||curStage}</b>. Te faltan <b>${pending.length}</b> partidos.</div>`;
   let lastDay="";
   pending.forEach(m=>{
     const isKO=m.phase==="ko";
@@ -702,59 +734,133 @@ function renderPlay(){
 }
 
 // ============================================================
-//  VISTA: ADMIN
+//  VISTA: ADMIN (con agrupación por día y colapsable)
 // ============================================================
+function renderMatchCard(m) {
+  const isKO = m.phase === "ko";
+  const r = RESULTS[m.id] || {};
+  const done = !!r.who;
+  const isDraw = r.who === "draw";
+  let html = `<div class="card">
+    <div class="top">
+      <div class="team"><span class="flag">${fl(m.a)}</span><span class="nm">${m.a}</span></div>
+      <div class="vs"><span class="v">VS</span><span class="grp">${isKO ? m.grp : "Gpo " + m.grp}</span></div>
+      <div class="team"><span class="flag">${fl(m.b)}</span><span class="nm">${m.b}</span></div>
+    </div>
+    <div class="body">
+      <div class="badge-row"><span class="status ${done ? 'done' : 'pend'}">${done ? '✓ capturado' : 'pendiente'}</span></div>`;
+  if (m.type === "hist") {
+    html += `<div class="q"><span class="lbl">Ganó</span>
+      ${optButtons("rwho", m.id, r.who || "",
+        isKO
+        ? [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}]
+        : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}])}</div>`;
+  } else {
+    html += `<div class="q"><span class="lbl">Marcador real <span class="mini">(auto)</span></span>
+      ${scoreSelectorAdmin(m.id, r)}</div>`;
+    html += `<div class="q"><span class="lbl">Anotó primero</span>
+      ${optButtons("rfirst", m.id, r.first || "", [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}])}</div>`;
+    if (isDraw) {
+      html += `<div class="desempate"><div class="q" style="margin:0"><span class="lbl">Más tiros a gol <span class="mini">(manual)</span></span>
+        ${optButtons("rshots", m.id, r.shots || "", [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}])}</div></div>`;
+    }
+  }
+  if (done) {
+    html += `<div style="text-align:right;margin-top:10px"><button class="btn btn-ghost" data-act="clearres" data-m="${m.id}" style="font-size:12px;padding:6px 12px">🗑️ Limpiar resultado</button></div>`;
+  }
+  html += `</div></div>`;
+  return html;
+}
+
+function scoreSelectorAdmin(mid,r){
+  const ga=r.ga, gb=r.gb;
+  return `<div class="score-pick">
+    <div class="score-col"><span class="score-num" id="rga-${mid}">${ga==null?"–":ga}</span>
+      <div class="score-steps">
+        <button class="score-btn" data-act="rscore" data-side="a" data-dir="-1" data-m="${mid}">−</button>
+        <button class="score-btn" data-act="rscore" data-side="a" data-dir="1" data-m="${mid}">+</button>
+      </div></div>
+    <span class="score-dash">–</span>
+    <div class="score-col"><span class="score-num" id="rgb-${mid}">${gb==null?"–":gb}</span>
+      <div class="score-steps">
+        <button class="score-btn" data-act="rscore" data-side="b" data-dir="-1" data-m="${mid}">−</button>
+        <button class="score-btn" data-act="rscore" data-side="b" data-dir="1" data-m="${mid}">+</button>
+      </div></div>
+  </div>`;
+}
+
 function renderAdmin(){
   const stages=activeStages();
   if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
   renderStageBar("stage-bar-admin", renderAdmin);
-  let html="",lastDay="";
-  MATCHES.filter(m=>m.stage===curStage).forEach(m=>{
-    const isKO=m.phase==="ko";
-    if(m.day!==lastDay){html+=`<div class="daygroup">${m.day}</div>`;lastDay=m.day;}
-    const r=RESULTS[m.id]||{};
-    const done=!!r.who;
-    const isDraw=r.who==="draw";
-    html+=`<div class="card">
-      <div class="top">
-        <div class="team"><span class="flag">${fl(m.a)}</span><span class="nm">${m.a}</span></div>
-        <div class="vs"><span class="v">VS</span><span class="grp">${isKO?m.grp:"Gpo "+m.grp}</span></div>
-        <div class="team"><span class="flag">${fl(m.b)}</span><span class="nm">${m.b}</span></div>
-      </div>
-      <div class="body">
-        <div class="badge-row"><span class="status ${done?'done':'pend'}">${done?'✓ capturado':'pendiente'}</span></div>`;
-    if(m.type==="hist"){
-      html+=`<div class="q"><span class="lbl">Ganó</span>
-        ${optButtons("rwho",m.id,r.who||"",
-          isKO
-          ? [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}]
-          : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}])}</div>`;
-    }else{
-      html+=`<div class="q"><span class="lbl">Marcador real <span class="mini">(auto)</span></span>
-        ${scoreSelectorAdmin(m.id,r)}</div>`;
-      html+=`<div class="q"><span class="lbl">Anotó primero</span>
-        ${optButtons("rfirst",m.id,r.first||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}])}</div>`;
-      if(isDraw){
-        html+=`<div class="desempate"><div class="q" style="margin:0"><span class="lbl">Más tiros a gol <span class="mini">(manual)</span></span>
-          ${optButtons("rshots",m.id,r.shots||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}])}</div></div>`;
-      }
-    }
-    if(done){
-      html+=`<div style="text-align:right;margin-top:10px"><button class="btn btn-ghost" data-act="clearres" data-m="${m.id}" style="font-size:12px;padding:6px 12px">🗑️ Limpiar resultado</button></div>`;
-    }
-    html+=`</div></div>`;
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  function parseDay(dayStr) {
+    const match = dayStr.match(/(\d{1,2})\s+(\w{3})/);
+    if (!match) return null;
+    const dayNum = parseInt(match[1], 10);
+    const monthMap = {ene:0, feb:1, mar:2, abr:3, may:4, jun:5, jul:6, ago:7, sep:8, oct:9, nov:10, dic:11};
+    const month = monthMap[match[2].toLowerCase()];
+    if (month === undefined) return null;
+    return new Date(2026, month, dayNum);
+  }
+
+  const stageMatches = MATCHES.filter(m => m.stage === curStage);
+  const todayMatches = [];
+  const pastMatches = [];
+  const futureMatches = [];
+
+  stageMatches.forEach(m => {
+    const date = parseDay(m.day);
+    if (!date) { pastMatches.push(m); return; }
+    if (date.getTime() === today.getTime()) todayMatches.push(m);
+    else if (date < today) pastMatches.push(m);
+    else futureMatches.push(m);
   });
-  document.getElementById("results").innerHTML=html;
+
+  let html = "";
+
+  if (todayMatches.length) {
+    html += `<div class="daygroup">📅 Hoy</div>`;
+    todayMatches.forEach(m => html += renderMatchCard(m));
+  } else {
+    html += `<div class="empty">No hay partidos programados para hoy.</div>`;
+  }
+
+  if (pastMatches.length) {
+    const groups = {};
+    pastMatches.forEach(m => {
+      if (!groups[m.day]) groups[m.day] = [];
+      groups[m.day].push(m);
+    });
+    const sortedDays = Object.keys(groups).sort((a,b) => {
+      const dateA = parseDay(a);
+      const dateB = parseDay(b);
+      if (!dateA || !dateB) return 0;
+      return dateB - dateA;
+    });
+    sortedDays.forEach(day => {
+      const matches = groups[day];
+      html += `<details>
+        <summary>📅 ${day} (${matches.length} partido${matches.length>1?'s':''})</summary>
+        <div style="margin-top:8px;">`;
+      matches.forEach(m => html += renderMatchCard(m));
+      html += `</div></details>`;
+    });
+  }
+
+  document.getElementById("results").innerHTML = html;
 }
 
 // ============================================================
-//  VISTA: RANKING (con modal para detalles)
+//  VISTA: RANKING (sin acumulado, solo por etapa)
 // ============================================================
 function renderRankFilters(){
   const bar=document.getElementById("rank-filterbar");
   if(!bar) return;
   const stages=activeStages();
-  let html=`<button class="fbtn${curFilter==="all"?" on":""}" data-f="all">🏆 General</button>`;
+  let html = '';
   stages.forEach(s=>{
     html+=`<button class="fbtn${curFilter===s.key?" on":""}" data-f="${s.key}">${s.label}</button>`;
   });
@@ -764,8 +870,14 @@ function renderRankFilters(){
       curFilter=b.dataset.f;
       renderRankFilters();
       renderRank(curFilter);
+      // Actualizar nota
+      const stageLabel = STAGES.find(s=>s.key===curFilter)?.label || curFilter;
+      document.getElementById('rankNota').innerHTML = `📌 Ranking de la <b>${stageLabel}</b>.`;
     });
   });
+  // Asegurar nota
+  const stageLabel = STAGES.find(s=>s.key===curFilter)?.label || curFilter;
+  document.getElementById('rankNota').innerHTML = `📌 Ranking de la <b>${stageLabel}</b>.`;
 }
 
 function scoreMatch(pick,res,type){
@@ -787,11 +899,11 @@ function scoreMatch(pick,res,type){
 }
 
 function renderRank(filter){
-  filter=filter||"all";
+  filter=filter||curFilter;
   const rows=QUINIELAS.map(q=>{
     let tot=0,hits=0,first=0,played=0;
     MATCHES.forEach(m=>{
-      if(filter!=="all" && m.stage!==filter) return;
+      if(m.stage!==filter) return; // solo la etapa seleccionada
       const pick=(q.picks||{})[m.id];
       const res=RESULTS[m.id];
       if(res&&res.who) played++;
@@ -803,10 +915,9 @@ function renderRank(filter){
   });
   rows.sort((a,b)=>b.tot-a.tot||b.hits-a.hits||b.first-a.first||a.name.localeCompare(b.name));
   const box=document.getElementById("rankTable");
-  if(!rows.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas.<br>Pásate a <b>Jugar</b> para registrar la primera.</div>`;return;}
-  const stages=activeStages();
-  const lbl = filter==="all" ? "Acumulado de todo el torneo" : (stages.find(s=>s.key===filter)?.label||filter);
-  let html=`<div class="rank-scope">${filter==="all"?"🏆":"📍"} ${lbl}</div><div class="rank-card">`;
+  if(!rows.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas para esta etapa.<br>Pásate a <b>Jugar</b> para registrar la primera.</div>`;return;}
+  const stageLabel = STAGES.find(s=>s.key===filter)?.label||filter;
+  let html=`<div class="rank-scope">📍 ${stageLabel}</div><div class="rank-card">`;
   rows.forEach((r,i)=>{
     const cls=i===0?"p1":i===1?"p2":i===2?"p3":"";
     const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);
@@ -818,7 +929,6 @@ function renderRank(filter){
   });
   html+=`</div>`;
   box.innerHTML=html;
-  // Añadir listeners para abrir modal al hacer clic en el nombre
   box.querySelectorAll('.who[data-player]').forEach(el => {
     el.addEventListener('click', function() {
       const playerName = this.dataset.player;
@@ -827,7 +937,7 @@ function renderRank(filter){
   });
 }
 
-// ====== MODAL: mostrar predicciones del jugador ======
+// ====== MODAL: mostrar predicciones del jugador (solo etapa actual, 3 columnas) ======
 function showPlayerDetails(playerName) {
   const playerData = QUINIELAS.find(q => q.jugador === playerName);
   if (!playerData) {
@@ -841,36 +951,58 @@ function showPlayerDetails(playerName) {
 
   nameEl.textContent = playerName;
 
-  let html = '';
-  // Mostrar solo partidos de la fase actual (para no sobrecargar)
-  const stageMatches = MATCHES.filter(m => m.stage === curStage);
+  const stageMatches = MATCHES.filter(m => m.stage === curFilter); // misma etapa que el ranking
   if (stageMatches.length === 0) {
-    html = '<div class="empty">No hay partidos en esta fase.</div>';
-  } else {
-    stageMatches.forEach(m => {
-      const pick = (playerData.picks || {})[m.id];
-      const res = RESULTS[m.id];
-      const hasPick = pick && (pick.who || (pick.ga != null && pick.gb != null));
-      const isPlayed = res && res.who;
-      const s = scoreMatch(pick, res, m.type);
-
-      html += `<div class="modal-detail-item">
-        <span class="match">${m.a} vs ${m.b} ${isPlayed ? '✅' : '⏳'}</span>`;
-      if (hasPick) {
-        let pickStr = '';
-        if (m.type === 'hist') {
-          pickStr = pick.who === 'a' ? m.a : (pick.who === 'b' ? m.b : 'Empate');
-        } else {
-          pickStr = `${pick.ga ?? '?'} - ${pick.gb ?? '?'}`;
-          if (pick.first) pickStr += ` (1er: ${pick.first === 'a' ? m.a : pick.first === 'b' ? m.b : 'sin goles'})`;
-        }
-        html += `<span class="pick">${pickStr} ${s.pts > 0 ? '+' + s.pts : ''}</span>`;
-      } else {
-        html += `<span class="empty">Sin predicción</span>`;
-      }
-      html += `</div>`;
-    });
+    detailsEl.innerHTML = '<div class="empty">No hay partidos en esta etapa.</div>';
+    modal.classList.add('show');
+    return;
   }
+
+  let html = `<div class="modal-grid">
+    <div class="header">Partido</div>
+    <div class="header">Predicción</div>
+    <div class="header">Resultado real</div>`;
+
+  stageMatches.forEach(m => {
+    const pick = (playerData.picks || {})[m.id];
+    const res = RESULTS[m.id];
+    const hasPick = pick && (pick.who || (pick.ga != null && pick.gb != null));
+    const isPlayed = res && res.who;
+    const s = scoreMatch(pick, res, m.type);
+
+    let pickStr = '';
+    if (hasPick) {
+      if (m.type === 'hist') {
+        pickStr = pick.who === 'a' ? m.a : (pick.who === 'b' ? m.b : 'Empate');
+      } else {
+        pickStr = `${pick.ga ?? '?'} - ${pick.gb ?? '?'}`;
+        if (pick.first) pickStr += ` (1er: ${pick.first === 'a' ? m.a : pick.first === 'b' ? m.b : 'sin goles'})`;
+      }
+      if (s.pts > 0) pickStr += ` +${s.pts}`;
+    } else {
+      pickStr = '—';
+    }
+
+    let resultStr = '';
+    if (isPlayed) {
+      if (m.type === 'hist') {
+        const winner = res.who === 'a' ? m.a : (res.who === 'b' ? m.b : 'Empate');
+        resultStr = `<span class="win">${winner}</span>`;
+      } else {
+        let score = `${res.ga ?? '?'} - ${res.gb ?? '?'}`;
+        let winner = res.who === 'a' ? m.a : (res.who === 'b' ? m.b : 'Empate');
+        resultStr = `${score} (${winner})`;
+      }
+    } else {
+      resultStr = '⏳ Pendiente';
+    }
+
+    html += `<div class="cell">${fl(m.a)} ${m.a} vs ${m.b} ${fl(m.b)}</div>
+             <div class="cell ${hasPick ? 'pick' : 'empty'}">${pickStr}</div>
+             <div class="cell result">${resultStr}</div>`;
+  });
+
+  html += `</div>`;
   detailsEl.innerHTML = html;
   modal.classList.add('show');
 }
@@ -902,6 +1034,14 @@ document.querySelectorAll(".tab").forEach(t=>{
       await loadAll();
       renderRankFilters();
       renderRank(curFilter);
+    }
+    if(v==="play"){
+      await loadAll();
+      populatePlayerSelect();
+      // Si hay un jugador seleccionado, cargar sus picks
+      const sel = document.getElementById('playerSelect');
+      if (sel.value) loadPlayerPicks(sel.value);
+      else renderPlay();
     }
   });
 });
@@ -953,7 +1093,6 @@ function updateDerivedRow(mid){
 }
 
 document.addEventListener("click",async e=>{
-  // Limpiar resultado completo de un partido (vuelve a pendiente)
   const clr=e.target.closest("[data-act=clearres]");
   if(clr){
     if(!unlocked){toast("Necesitas el PIN para capturar resultados","err");return;}
@@ -969,7 +1108,6 @@ document.addEventListener("click",async e=>{
     }catch(err){toast("No se pudo limpiar","err");console.error(err);}
     return;
   }
-  // Botones de marcador real (admin)
   const rsb=e.target.closest("[data-act=rscore]");
   if(rsb){
     if(!unlocked){toast("Necesitas el PIN para capturar resultados","err");return;}
@@ -1018,9 +1156,23 @@ document.addEventListener("click",async e=>{
   }
 });
 
+// Selector de jugador en Jugar
+document.getElementById('playerSelect').addEventListener('change', function() {
+  const name = this.value;
+  if (name) {
+    loadPlayerPicks(name);
+  } else {
+    curPicks = {};
+    MATCHES.filter(m => m.stage === curStage && m.type === 'new').forEach(m => delete doneMatches[m.id]);
+    saveDone();
+    renderPlay();
+  }
+});
+
 document.getElementById("saveBtn").addEventListener("click",async()=>{
-  const name=document.getElementById("player").value.trim();
-  if(!name){toast("Escribe tu nombre","err");return;}
+  const select = document.getElementById('playerSelect');
+  const name = select.value;
+  if(!name){toast("Selecciona un nombre de la lista","err");return;}
   const predichos=Object.keys(curPicks).filter(id=>{
     const p=curPicks[id]; if(!p) return false;
     return p.who || (p.ga!=null && p.gb!=null);
@@ -1035,10 +1187,12 @@ document.getElementById("saveBtn").addEventListener("click",async()=>{
     burstConfetti();
     toast(`¡Quiniela de ${name} guardada! (${predichos.length} partidos)`,"ok");
     curPicks={};
-    document.getElementById("player").value="";
-    renderPlay();
-    // Recargar datos y actualizar ranking si está visible
+    // Recargar datos y actualizar select
     await loadAll();
+    populatePlayerSelect();
+    select.value = name; // mantener selección
+    // Recargar sus picks (ahora ya actualizados)
+    loadPlayerPicks(name);
     if(curView==="rank") { renderRankFilters(); renderRank(curFilter); }
   }catch(err){toast("Error al guardar","err");console.error(err);}
   btn.disabled=false;btn.textContent="Guardar quiniela";
@@ -1052,7 +1206,6 @@ document.getElementById("syncBtn").addEventListener("click",async()=>{
   btn.disabled=false;btn.textContent="↻ Sincronizar";
 });
 
-// Botón para limpiar duplicados (desde el frontend)
 document.getElementById("cleanBtn").addEventListener("click", async () => {
   if (!unlocked) { toast("Necesitas el PIN para esta acción", "err"); return; }
   if (!confirm("¿Eliminar duplicados? Se conservará el registro más reciente de cada jugador.")) return;
@@ -1085,6 +1238,7 @@ document.getElementById("cleanBtn").addEventListener("click", async () => {
     renderAdmin();
     renderRankFilters();
     renderRank(curFilter);
+    populatePlayerSelect();
   } catch (err) {
     toast("Error al limpiar: " + err.message, "err");
     console.error(err);
@@ -1209,10 +1363,11 @@ function burstConfetti(){
 // ============================================================
 (async function(){
   await loadAll();
+  populatePlayerSelect();
   renderPlay();
   try{
     const changed = await syncResults(true);
-    if(changed>0){ await loadAll(); renderPlay(); }
+    if(changed>0){ await loadAll(); populatePlayerSelect(); renderPlay(); }
   }catch(e){ console.error("init sync",e); }
 })();
 </script>
