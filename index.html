@@ -196,10 +196,22 @@
   .rrow.p1 .pos{background:linear-gradient(180deg,var(--gold),var(--gold2));color:#231a02}
   .rrow.p2 .pos{background:linear-gradient(180deg,#cfd4d6,#9aa0a6);color:#1a1a1a}
   .rrow.p3 .pos{background:linear-gradient(180deg,#cd7f4d,#a85f30);color:#fff}
-  .rrow .who{flex:1;font-weight:700;font-size:15px}
+  .rrow .who{flex:1;font-weight:700;font-size:15px;cursor:pointer}
+  .rrow .who:hover{color:var(--gold)}
   .rrow .who .sub{display:block;font-weight:500;font-size:11.5px;color:var(--chalk3);margin-top:1px}
   .rrow .pts{font-family:"Arial Narrow",sans-serif;font-weight:800;font-size:22px;color:var(--gold)}
   .rrow .pts .u{font-size:11px;color:var(--chalk3);font-weight:600;margin-left:2px}
+
+  /* Modal para detalles del jugador */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;padding:24px;position:relative;}
+  .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--chalk);font-size:28px;cursor:pointer;}
+  .modal-title{color:var(--gold);margin:0 0 12px;font-size:22px;font-weight:800;font-family:"Arial Narrow",sans-serif;}
+  .modal-detail-item{border-bottom:1px solid var(--line);padding:8px 0;display:flex;justify-content:space-between;font-size:14px;}
+  .modal-detail-item .match{font-weight:600;color:var(--chalk);}
+  .modal-detail-item .pick{color:var(--gold);}
+  .modal-detail-item .empty{color:var(--chalk3);}
 
   .loading{text-align:center;color:var(--chalk2);padding:34px;font-size:14px}
   .empty{text-align:center;color:var(--chalk2);padding:30px 20px;font-size:14px;line-height:1.6}
@@ -215,30 +227,11 @@
   .pin-input:focus{border-color:var(--gold);outline:none}
   .pin-err{color:#ff8080;font-size:13px;margin-top:10px;min-height:18px}
 
-  /* Comparación predicción vs resultado */
-  .cmp-real{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 12px;
-    background:var(--card2);border-bottom:1px solid var(--line);font-weight:700;font-size:14px;flex-wrap:wrap;text-align:center}
-  .cmp-real .sc{font-family:"Arial Narrow",sans-serif;font-size:22px;color:var(--gold);margin:0 6px}
-  .cmp-team{font-size:13px;color:var(--chalk2);font-weight:600}
-  .cmp-team.win{color:var(--gold);font-weight:800}
-  .cmp-emp{font-size:12px;color:var(--chalk2);margin:0 6px;font-style:italic}
-  .cmp-extra{text-align:center;font-size:11.5px;color:var(--chalk3);padding:5px 12px;background:var(--card2);border-bottom:1px solid var(--line)}
-  .cmp-real .pend{font-size:12px;color:var(--chalk3);font-weight:600}
-  .cmp-list{padding:6px 0}
-  .cmp-row{display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:13px}
-  .cmp-row .nm{flex:1;color:var(--chalk);font-weight:600}
-  .cmp-row .pr{color:var(--chalk2);font-size:12.5px}
-  .cmp-row .mk{font-size:15px;width:20px;text-align:center}
-  .cmp-pts{font-family:"Arial Narrow",sans-serif;font-weight:800;color:var(--gold);font-size:15px;min-width:34px;text-align:right}
-  .cmp-header{display:flex;flex-direction:column;gap:3px;margin:24px 0 12px;padding-top:16px;border-top:1px solid var(--line)}
-  .cmp-title{font-family:"Arial Narrow",sans-serif;font-weight:800;font-size:22px;color:var(--gold);text-transform:uppercase;letter-spacing:.5px}
-  .cmp-leg{font-size:12px;color:var(--chalk3)}
-  .cmp-pendiente{color:var(--chalk2)}
-  .cmp-vs{font-size:13px;font-weight:600}
-  .cmp-dash{color:var(--chalk3);font-weight:400;margin:0 2px}
-  .pend-tag{font-size:11px;color:var(--warn);background:rgba(231,184,75,.12);border:1px solid var(--gold2);padding:2px 8px;border-radius:7px;margin-left:6px;white-space:nowrap}
+  /* Comparación predicción vs resultado (eliminada, pero mantenemos estilos por si acaso) */
+  .cmp-real,.cmp-team,.cmp-extra,.cmp-row,.cmp-header,.cmp-title,.cmp-leg,.cmp-pendiente,.cmp-vs,.cmp-dash,.pend-tag{display:none;}
 
-  /* Toast */
+  .cmp-list{display:none;}
+
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(10px);
     background:var(--pitch2);color:var(--chalk);padding:13px 20px;border-radius:12px;font-size:14px;
     font-weight:600;z-index:100;box-shadow:var(--shadow);opacity:0;transition:.22s;pointer-events:none;
@@ -299,6 +292,7 @@
           Trae el ganador y quién anotó primero automáticamente. Los tiros a gol (desempate) se ponen a mano.
         </div>
         <button class="btn btn-gold" id="syncBtn">↻ Sincronizar</button>
+        <button class="btn btn-ghost" id="cleanBtn" style="font-size:12px;padding:7px 12px;">🧹 Depurar duplicados</button>
       </div>
       <div style="text-align:right;margin:0 0 10px">
         <button class="btn btn-ghost" id="lockBtn" style="font-size:12px;padding:7px 12px">🔒 Bloquear de nuevo</button>
@@ -306,12 +300,6 @@
       <div id="stage-bar-admin" class="stage-bar"></div>
       <div id="results"><div class="loading">Cargando partidos…</div></div>
     </div>
-
-    <div class="cmp-header">
-      <span class="cmp-title">📊 Predicción vs Resultado</span>
-      <span class="cmp-leg">✅ acierto · ❌ falló · ⬜ no predijo</span>
-    </div>
-    <div id="compare"><div class="loading">Cargando comparación…</div></div>
   </section>
 
   <!-- RANKING -->
@@ -323,6 +311,15 @@
       <button class="btn btn-ghost" id="refreshBtn">↻ Actualizar ranking</button>
     </div>
   </section>
+</div>
+
+<!-- Modal para detalles del jugador -->
+<div id="playerModal" class="modal-overlay">
+  <div class="modal-box">
+    <button id="closeModal" class="modal-close">&times;</button>
+    <h2 id="modalPlayerName" class="modal-title">Jugador</h2>
+    <div id="modalPlayerDetails"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -365,18 +362,8 @@ const EN = {
 };
 
 // ============================================================
-//  PARTIDOS  (type: "hist" reglas viejas · "new" reglas nuevas)
-//  ▼▼▼ PARA AGREGAR OCTAVOS/CUARTOS EN EL FUTURO: copia un bloque
-//      y cámbialo a phase:"ko" (eliminación, sin empates). ▼▼▼
+//  PARTIDOS
 // ============================================================
-// ============================================================
-//  FASES DEL TORNEO
-//  Cada partido tiene stage:"grupos" | "octavos" | "cuartos" | "semis" | "final".
-//  El ranking SIEMPRE suma todas las fases (acumulado del torneo).
-//  Para agregar una fase nueva: añade los partidos con su stage; la pestaña
-//  de esa fase aparece sola cuando hay al menos un partido con ese stage.
-// ============================================================
-
 const MATCHES = [
   // ---- HISTÓRICOS ----
   {id:"h03",day:"Histórico · 18 jun",grp:"A",a:"Chequia",b:"Sudáfrica",type:"hist",stage:"grupos"},
@@ -428,13 +415,9 @@ const MATCHES = [
   {id:"n34",day:"Sábado 27 jun",grp:"K",a:"RD Congo",b:"Uzbekistán",type:"new",stage:"grupos"},
   {id:"n35",day:"Sábado 27 jun",grp:"J",a:"Argelia",b:"Austria",type:"new",stage:"grupos"},
   {id:"n36",day:"Sábado 27 jun",grp:"J",a:"Jordania",b:"Argentina",type:"new",stage:"grupos"},
-  // ▼▼▼ AGREGA AQUÍ LOS PARTIDOS DE LA SIGUIENTE FASE ▼▼▼
-  // Para octavos en adelante: type:"new", phase:"ko" (sin empate), y stage:"octavos" (u "cuartos","semis","final").
-  // Ejemplo:
-  // {id:"k01",day:"Octavos · 28 jun",grp:"OF",a:"Equipo X",b:"Equipo Y",type:"new",phase:"ko",stage:"octavos"},
 ];
 
-// Etapas del torneo (orden de aparición en el selector)
+// Etapas del torneo
 const STAGES = [
   {key:"grupos",  label:"Fase de Grupos"},
   {key:"octavos", label:"Octavos"},
@@ -442,21 +425,17 @@ const STAGES = [
   {key:"semis",   label:"Semifinales"},
   {key:"final",   label:"Final"},
 ];
-// Todo partido sin stage definido pertenece a "grupos"
 MATCHES.forEach(m=>{ if(!m.stage) m.stage="grupos"; });
-// Etapas que tienen al menos un partido cargado
 function activeStages(){ return STAGES.filter(s=>MATCHES.some(m=>m.stage===s.key)); }
-let curStage = "grupos"; // etapa seleccionada en Jugar/Resultados
+let curStage = "grupos";
 
 let RESULTS = {};
 let QUINIELAS = [];
 let curPicks = {};
 let curFilter = "all";
-let curView = "play"; // pestaña activa: play | admin | rank
+let curView = "play";
 let unlocked = false;
 try{ unlocked = localStorage.getItem("quiniela_admin")==="1"; }catch(e){ unlocked=false; }
-// IDs de partidos ya cubiertos por quinielas guardadas DESDE este dispositivo.
-// Se usan solo para ocultarlos en "Jugar" y no volver a mostrarlos.
 let doneMatches = {};
 try{ doneMatches = JSON.parse(localStorage.getItem("quiniela_done")||"{}"); }catch(e){ doneMatches = {}; }
 function saveDone(){ try{ localStorage.setItem("quiniela_done",JSON.stringify(doneMatches)); }catch(e){} }
@@ -488,12 +467,52 @@ async function sbUpsert(table,obj){
 }
 function fl(team){return FLAG[team]||"⚽"}
 
+// ====== NUEVA FUNCIÓN UPSERT PARA QUINIELAS (evita duplicados) ======
+async function upsertQuiniela(obj) {
+  // Buscar si ya existe un registro para este jugador
+  const resp = await fetch(
+    `${SB_URL}/rest/v1/quinielas?jugador=eq.${encodeURIComponent(obj.jugador)}`,
+    { headers: HEADERS }
+  );
+  if (!resp.ok) throw new Error(await resp.text());
+  const data = await resp.json();
+
+  if (data && data.length > 0) {
+    // Ya existe: actualizar (PATCH)
+    const id = data[0].id;
+    const r = await fetch(`${SB_URL}/rest/v1/quinielas?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { ...HEADERS, 'Prefer': 'return=representation' },
+      body: JSON.stringify({ picks: obj.picks })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  } else {
+    // No existe: insertar
+    const r = await fetch(`${SB_URL}/rest/v1/quinielas`, {
+      method: 'POST',
+      headers: { ...HEADERS, 'Prefer': 'return=representation' },
+      body: JSON.stringify(obj)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
+}
+
 async function loadAll(){
   try{
     const [parts,quis]=await Promise.all([sbGet("partidos"),sbGet("quinielas")]);
     RESULTS={};
     parts.forEach(p=>{RESULTS[p.id]={who:p.res_who,first:p.res_first,shots:p.res_shots,ga:p.res_ga,gb:p.res_gb}});
-    QUINIELAS=quis;
+    // Deduplicar: quedarse con el registro más reciente por jugador (mayor id)
+    const map = new Map();
+    quis.forEach(q => {
+      const existing = map.get(q.jugador);
+      if (!existing || q.id > existing.id) {
+        map.set(q.jugador, q);
+      }
+    });
+    QUINIELAS = Array.from(map.values());
   }catch(e){toast("No se pudo conectar con la base",("err"));console.error(e);}
 }
 
@@ -505,7 +524,6 @@ async function syncResults(silent){
     const r=await fetch(OPENFOOTBALL_URL,{cache:"no-store"});
     if(!r.ok) throw new Error("fetch openfootball "+r.status);
     const data=await r.json();
-    // índice por par de equipos (EN) sin importar orden
     const byPair={};
     data.matches.forEach(m=>{
       if(!m.score||!m.score.ft) return;
@@ -519,14 +537,11 @@ async function syncResults(silent){
       const key=[enA,enB].sort().join("|");
       const src=byPair[key];
       if(!src) continue;
-      // ya capturado manualmente con tiros → respeta, no pisa
       const existing=RESULTS[M.id]||{};
-      // determinar ganador
-      const [s1,s2]=src.score.ft;          // score relativo a src.team1/team2
-      const srcA=src.team1===enA;          // ¿team1 del source es nuestro equipo A?
+      const [s1,s2]=src.score.ft;
+      const srcA=src.team1===enA;
       const goalsA=srcA?s1:s2, goalsB=srcA?s2:s1;
       let who = goalsA>goalsB?"a":(goalsB>goalsA?"b":"draw");
-      // quién anotó primero (minuto más bajo)
       let first=null;
       const minOf=(arr)=>{
         if(!arr||!arr.length) return Infinity;
@@ -536,10 +551,8 @@ async function syncResults(silent){
       if(m1===Infinity&&m2===Infinity){first="none";}
       else if(m1<m2){first=src.team1===enA?"a":"b";}
       else if(m2<m1){first=src.team2===enA?"a":"b";}
-      else {first="none";} // empate de minuto improbable
-      // construir registro, preservando shots manual si existe
+      else {first="none";}
       const rec={who,first,shots:existing.shots||null,ga:goalsA,gb:goalsB};
-      // ¿cambió algo?
       if(existing.who===who && existing.first===first && existing.ga===goalsA && existing.gb===goalsB){continue;}
       RESULTS[M.id]=rec;
       await sbUpsert("partidos",{id:M.id,grupo:M.grp,equipo_a:M.a,equipo_b:M.b,
@@ -557,7 +570,7 @@ async function syncResults(silent){
 
 // ============================================================
 //  VISTA: JUGAR
-// Deriva criterios a partir de un marcador (golesA, golesB)
+// ============================================================
 function deriveFromScore(ga,gb){
   if(ga==null||gb==null) return null;
   ga=+ga; gb=+gb;
@@ -613,7 +626,6 @@ function scoreSelectorAdmin(mid,r){
   </div>`;
 }
 
-// ============================================================
 function optButtons(field,mid,cur,opts){
   return `<div class="opts">`+opts.map(o=>
     `<button class="opt${cur===o.v?' sel':''}" data-act="pick" data-f="${field}" data-m="${mid}" data-v="${o.v}">${o.f?`<span class="f">${o.f}</span>`:""}${o.t}</button>`
@@ -623,7 +635,7 @@ function renderStageBar(containerId, onPick){
   const stages=activeStages();
   const box=document.getElementById(containerId);
   if(!box) return;
-  if(stages.length<=1){ box.innerHTML=""; return; } // si solo hay grupos, no satura
+  if(stages.length<=1){ box.innerHTML=""; return; }
   box.innerHTML=stages.map(s=>
     `<button class="stage-btn${curStage===s.key?' on':''}" data-stage="${s.key}">${s.label}</button>`
   ).join("");
@@ -632,14 +644,10 @@ function renderStageBar(containerId, onPick){
   });
 }
 function renderPlay(){
-  // asegurar que la etapa actual exista; si no, caer a la primera activa
   const stages=activeStages();
   if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
   renderStageBar("stage-bar-play", renderPlay);
   const stageMatches = MATCHES.filter(m=>m.stage===curStage);
-  // En Jugar solo se predicen los partidos de rondas ABIERTAS (tipo "new", del 24 jun en adelante).
-  // Las rondas ya cerradas (tipo "hist", 18-23 jun) no se muestran aquí, pero siguen contando
-  // en Resultados y Ranking. Además se ocultan los ya jugados o ya guardados en este dispositivo.
   const yaJugado = id => { const r=RESULTS[id]; return r && r.who; };
   const pending = stageMatches.filter(m=> m.type==="new" && !doneMatches[m.id] && !yaJugado(m.id));
   const box=document.getElementById("matches");
@@ -671,14 +679,12 @@ function renderPlay(){
       <div class="body">
         <div class="badge-row"><span class="badge ${m.type}">${m.type==="hist"?"🟡 Vale +1":"🟢 Reglas nuevas"}</span></div>`;
     if(m.type==="hist"){
-      // Históricos: solo ganador
       html+=`<div class="q"><span class="lbl">¿Quién gana?</span>
         ${optButtons("who",m.id,p.who||"",
           isKO
           ? [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}]
           : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}])}</div>`;
     }else{
-      // Nuevos: marcador exacto (deriva ganador, over/under, ambos anotan) + primer gol
       const d=deriveFromScore(p.ga,p.gb);
       const isDrawScore = d && d.who==="draw";
       html+=`<div class="q"><span class="lbl">Marcador exacto <span class="mini">+3</span> · de aquí salen ganador, goles y ambos anotan</span>
@@ -724,7 +730,6 @@ function renderAdmin(){
           ? [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}]
           : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}])}</div>`;
     }else{
-      // Nuevos: marcador real (lo rellena la sincronización; editable a mano)
       html+=`<div class="q"><span class="lbl">Marcador real <span class="mini">(auto)</span></span>
         ${scoreSelectorAdmin(m.id,r)}</div>`;
       html+=`<div class="q"><span class="lbl">Anotó primero</span>
@@ -743,98 +748,8 @@ function renderAdmin(){
 }
 
 // ============================================================
-//  VISTA: COMPARAR PREDICCIONES vs RESULTADO
+//  VISTA: RANKING (con modal para detalles)
 // ============================================================
-function labelPick(m,val){
-  if(val==="a") return `${fl(m.a)} ${m.a}`;
-  if(val==="b") return `${fl(m.b)} ${m.b}`;
-  if(val==="draw") return "🤝 Empate";
-  if(val==="none") return "🚫 Sin goles";
-  return "—";
-}
-function renderCompare(){
-  const box=document.getElementById("compare");
-  if(!box) return;
-  // asegurar etapa válida
-  const stages=activeStages();
-  if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
-  if(!QUINIELAS.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas para comparar.</div>`;return;}
-  // Solo partidos YA JUGADOS de la etapa actual (los pendientes no se muestran para evitar confusión)
-  const lista=MATCHES.filter(m=>m.stage===curStage && RESULTS[m.id] && RESULTS[m.id].who);
-  if(!lista.length){box.innerHTML=`<div class="empty">Todavía no hay partidos jugados en esta etapa.<br>Aquí aparecerá la comparación conforme se jueguen.</div>`;return;}
-  let html="",lastDay="";
-  lista.forEach(m=>{
-    const r=RESULTS[m.id]||{};
-    if(m.day!==lastDay){html+=`<div class="daygroup">${m.day}</div>`;lastDay=m.day;}
-    // Encabezado: partido completo con banderas, marcador y ganador resaltado
-    const winA = r.who==="a", winB = r.who==="b";
-    const ladoA = `<span class="cmp-team${winA?" win":""}">${fl(m.a)} ${m.a}</span>`;
-    const ladoB = `<span class="cmp-team${winB?" win":""}">${m.b} ${fl(m.b)}</span>`;
-    let centro;
-    if(r.ga!=null && r.gb!=null){
-      centro = `<span class="sc">${r.ga} - ${r.gb}</span>`;
-    }else if(r.who==="draw"){
-      centro = `<span class="cmp-emp">empate</span>`;
-    }else{
-      centro = `<span class="cmp-dash">${r.who==="a"?"ganó →":"← ganó"}</span>`;
-    }
-    let realWho = `${ladoA}${centro}${ladoB}`;
-    let extra="";
-    if(m.type==="new"&&r.first) extra=`<div class="cmp-extra">1er gol: ${r.first==="none"?"🚫 sin goles":(r.first==="a"?fl(m.a)+" "+m.a:fl(m.b)+" "+m.b)}</div>`;
-    html+=`<div class="card"><div class="cmp-real">${realWho}</div>${extra}<div class="cmp-list">`;
-    QUINIELAS.forEach(q=>{
-      const pick=(q.picks||{})[m.id];
-      let mk,pr,pts="";
-      const hasPick = pick && (pick.who || (pick.ga!=null && pick.gb!=null));
-      if(!hasPick){
-        mk="⬜";pr="no predijo";
-      }else{
-        if(m.type==="hist"){
-          pr=labelPick(m,pick.who);
-        }else{
-          pr=`${pick.ga}-${pick.gb}`;
-          if(pick.first) pr+=` · 1er: ${pick.first==="none"?"🚫":(pick.first==="a"?fl(m.a):fl(m.b))}`;
-        }
-        const s=scoreMatch(pick,r,m.type);
-        mk=s.hit?"✅":"❌";
-        pts=s.pts>0?`+${s.pts}`:"0";
-      }
-      html+=`<div class="cmp-row"><span class="mk">${mk}</span><span class="nm">${q.jugador}</span><span class="pr">${pr}</span><span class="cmp-pts">${pts}</span></div>`;
-    });
-    html+=`</div></div>`;
-  });
-  box.innerHTML=html;
-}
-
-// ============================================================
-//  PUNTAJE
-// ============================================================
-function scoreMatch(pick,res,type){
-  if(!res||!res.who) return {pts:0,hit:false};
-  let pts=0,hit=false;
-  if(type==="hist"){
-    // Históricos (12-23 jun): solo ganador, +1 por acierto
-    if(pick&&pick.who&&pick.who===res.who){pts+=1;hit=true;}
-    return {pts,hit};
-  }
-  // Nuevos: el pick trae marcador (ga/gb); derivamos sus criterios
-  const dp = (pick && pick.ga!=null && pick.gb!=null) ? deriveFromScore(pick.ga,pick.gb) : null;
-  const dr = (res.ga!=null && res.gb!=null) ? deriveFromScore(res.ga,res.gb) : null;
-  // Ganador +3
-  if(dp && dp.who===res.who){pts+=3;hit=true;}
-  // Marcador exacto +3
-  if(dp && res.ga!=null && +pick.ga===+res.ga && +pick.gb===+res.gb){pts+=3;hit=true;}
-  // Anota primero +1
-  if(pick && pick.first && pick.first===res.first) pts+=1;
-  // Over/Under 2.5 +1
-  if(dp && dr && dp.over===dr.over) pts+=1;
-  // Ambos anotan +1
-  if(dp && dr && dp.btts===dr.btts) pts+=1;
-  // Más tiros a gol +1 (solo si el resultado real fue empate)
-  if(res.who==="draw" && pick && pick.shots && pick.shots===res.shots) pts+=1;
-  return {pts,hit};
-}
-// Dibuja los botones de filtro del ranking: General + cada fase con partidos
 function renderRankFilters(){
   const bar=document.getElementById("rank-filterbar");
   if(!bar) return;
@@ -853,13 +768,29 @@ function renderRankFilters(){
   });
 }
 
-// filter: "all" = ranking general (todo el torneo) | "grupos"/"octavos"/... = solo esa fase
+function scoreMatch(pick,res,type){
+  if(!res||!res.who) return {pts:0,hit:false};
+  let pts=0,hit=false;
+  if(type==="hist"){
+    if(pick&&pick.who&&pick.who===res.who){pts+=1;hit=true;}
+    return {pts,hit};
+  }
+  const dp = (pick && pick.ga!=null && pick.gb!=null) ? deriveFromScore(pick.ga,pick.gb) : null;
+  const dr = (res.ga!=null && res.gb!=null) ? deriveFromScore(res.ga,res.gb) : null;
+  if(dp && dp.who===res.who){pts+=3;hit=true;}
+  if(dp && res.ga!=null && +pick.ga===+res.ga && +pick.gb===+res.gb){pts+=3;hit=true;}
+  if(pick && pick.first && pick.first===res.first) pts+=1;
+  if(dp && dr && dp.over===dr.over) pts+=1;
+  if(dp && dr && dp.btts===dr.btts) pts+=1;
+  if(res.who==="draw" && pick && pick.shots && pick.shots===res.shots) pts+=1;
+  return {pts,hit};
+}
+
 function renderRank(filter){
   filter=filter||"all";
   const rows=QUINIELAS.map(q=>{
     let tot=0,hits=0,first=0,played=0;
     MATCHES.forEach(m=>{
-      // Si se filtra por fase, solo cuentan los partidos de esa fase.
       if(filter!=="all" && m.stage!==filter) return;
       const pick=(q.picks||{})[m.id];
       const res=RESULTS[m.id];
@@ -881,12 +812,67 @@ function renderRank(filter){
     const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);
     html+=`<div class="rrow ${cls}">
       <div class="pos">${medal}</div>
-      <div class="who">${r.name}<span class="sub">${r.hits} aciertos${r.first?` · ${r.first} primer gol`:""}</span></div>
+      <div class="who" data-player="${r.name}">${r.name}<span class="sub">${r.hits} aciertos${r.first?` · ${r.first} primer gol`:""}</span></div>
       <div class="pts">${r.tot}<span class="u">pts</span></div>
     </div>`;
   });
   html+=`</div>`;
   box.innerHTML=html;
+  // Añadir listeners para abrir modal al hacer clic en el nombre
+  box.querySelectorAll('.who[data-player]').forEach(el => {
+    el.addEventListener('click', function() {
+      const playerName = this.dataset.player;
+      showPlayerDetails(playerName);
+    });
+  });
+}
+
+// ====== MODAL: mostrar predicciones del jugador ======
+function showPlayerDetails(playerName) {
+  const playerData = QUINIELAS.find(q => q.jugador === playerName);
+  if (!playerData) {
+    toast('No se encontraron datos para este jugador', 'err');
+    return;
+  }
+
+  const modal = document.getElementById('playerModal');
+  const nameEl = document.getElementById('modalPlayerName');
+  const detailsEl = document.getElementById('modalPlayerDetails');
+
+  nameEl.textContent = playerName;
+
+  let html = '';
+  // Mostrar solo partidos de la fase actual (para no sobrecargar)
+  const stageMatches = MATCHES.filter(m => m.stage === curStage);
+  if (stageMatches.length === 0) {
+    html = '<div class="empty">No hay partidos en esta fase.</div>';
+  } else {
+    stageMatches.forEach(m => {
+      const pick = (playerData.picks || {})[m.id];
+      const res = RESULTS[m.id];
+      const hasPick = pick && (pick.who || (pick.ga != null && pick.gb != null));
+      const isPlayed = res && res.who;
+      const s = scoreMatch(pick, res, m.type);
+
+      html += `<div class="modal-detail-item">
+        <span class="match">${m.a} vs ${m.b} ${isPlayed ? '✅' : '⏳'}</span>`;
+      if (hasPick) {
+        let pickStr = '';
+        if (m.type === 'hist') {
+          pickStr = pick.who === 'a' ? m.a : (pick.who === 'b' ? m.b : 'Empate');
+        } else {
+          pickStr = `${pick.ga ?? '?'} - ${pick.gb ?? '?'}`;
+          if (pick.first) pickStr += ` (1er: ${pick.first === 'a' ? m.a : pick.first === 'b' ? m.b : 'sin goles'})`;
+        }
+        html += `<span class="pick">${pickStr} ${s.pts > 0 ? '+' + s.pts : ''}</span>`;
+      } else {
+        html += `<span class="empty">Sin predicción</span>`;
+      }
+      html += `</div>`;
+    });
+  }
+  detailsEl.innerHTML = html;
+  modal.classList.add('show');
 }
 
 // ============================================================
@@ -908,12 +894,11 @@ document.querySelectorAll(".tab").forEach(t=>{
       try{ await syncResults(true); }catch(e){ console.error("sync",e); }
       try{ await loadAll(); }catch(e){ console.error("loadAll2",e); }
       renderAdmin();
-      renderCompare();
     }
     if(v==="rank"){
       document.getElementById("rankTable").innerHTML=`<div class="loading">Actualizando…</div>`;
       await loadAll();
-      await syncResults(true);   // refresca antes de calcular
+      await syncResults(true);
       await loadAll();
       renderRankFilters();
       renderRank(curFilter);
@@ -936,13 +921,11 @@ document.addEventListener("input", e=>{
     if(val>20) val=20;
     curPicks[m][key]=val;
   }
-  // si ya no es empate, limpiar tiros
   const d=deriveFromScore(curPicks[m].ga,curPicks[m].gb);
   if(!d || d.who!=="draw") delete curPicks[m].shots;
   updateDerivedRow(m);
 });
 
-// Actualiza el resumen derivado y muestra/oculta el desempate, sin perder el foco del input
 function updateDerivedRow(mid){
   const inputEl=document.querySelector(`#matches [data-m="${mid}"][data-act="scoreinput"]`);
   const card=inputEl?inputEl.closest(".card"):null;
@@ -983,7 +966,6 @@ document.addEventListener("click",async e=>{
         res_who:null,res_first:null,res_shots:null,res_ga:null,res_gb:null});
       toast("Resultado limpiado","ok");
       renderAdmin();
-      renderCompare();
     }catch(err){toast("No se pudo limpiar","err");console.error(err);}
     return;
   }
@@ -998,7 +980,6 @@ document.addEventListener("click",async e=>{
     if(val==null) val=0; else val=+val+(+dir);
     if(val<0)val=0; if(val>9)val=9;
     RESULTS[m][key]=val;
-    // derivar who del marcador
     const d=deriveFromScore(RESULTS[m].ga,RESULTS[m].gb);
     if(d){RESULTS[m].who=d.who; if(d.who!=="draw") delete RESULTS[m].shots;}
     const mm=MATCHES.find(x=>x.id===m);
@@ -1015,7 +996,6 @@ document.addEventListener("click",async e=>{
   const{f,m,v}=b.dataset;
   if(f==="who"||f==="first"||f==="shots"){
     curPicks[m]=curPicks[m]||{};
-    // toggle: si ya estaba esa opción, la quita
     if(curPicks[m][f]===v){ delete curPicks[m][f]; }
     else { curPicks[m][f]=v; }
     if(f==="who"&&curPicks[m].who!=="draw") delete curPicks[m].shots;
@@ -1024,7 +1004,6 @@ document.addEventListener("click",async e=>{
     if(!unlocked){toast("Necesitas el PIN para capturar resultados","err");return;}
     const key=f==="rwho"?"who":f==="rfirst"?"first":"shots";
     RESULTS[m]=RESULTS[m]||{};
-    // toggle: si tocas la opción ya seleccionada, se borra (vuelve a pendiente)
     if(RESULTS[m][key]===v){ delete RESULTS[m][key]; }
     else { RESULTS[m][key]=v; }
     if(key==="who"&&RESULTS[m].who!=="draw") delete RESULTS[m].shots;
@@ -1035,7 +1014,6 @@ document.addEventListener("click",async e=>{
         res_ga:RESULTS[m].ga!=null?RESULTS[m].ga:null,res_gb:RESULTS[m].gb!=null?RESULTS[m].gb:null});
       toast(RESULTS[m][key]?"Resultado guardado":"Resultado borrado","ok");
       renderAdmin();
-      renderCompare();
     }catch(err){toast("No se pudo guardar","err");console.error(err);}
   }
 });
@@ -1045,14 +1023,13 @@ document.getElementById("saveBtn").addEventListener("click",async()=>{
   if(!name){toast("Escribe tu nombre","err");return;}
   const predichos=Object.keys(curPicks).filter(id=>{
     const p=curPicks[id]; if(!p) return false;
-    return p.who || (p.ga!=null && p.gb!=null); // histórico (who) o nuevo (marcador)
+    return p.who || (p.ga!=null && p.gb!=null);
   });
   if(!predichos.length){toast("Elige al menos un resultado","err");return;}
   const btn=document.getElementById("saveBtn");
   btn.disabled=true;btn.textContent="Guardando…";
   try{
-    await sbInsert("quinielas",{jugador:name,picks:curPicks});
-    // marcar como cubiertos en este dispositivo para que desaparezcan
+    await upsertQuiniela({ jugador: name, picks: curPicks });
     predichos.forEach(id=>{doneMatches[id]=true;});
     saveDone();
     burstConfetti();
@@ -1060,6 +1037,9 @@ document.getElementById("saveBtn").addEventListener("click",async()=>{
     curPicks={};
     document.getElementById("player").value="";
     renderPlay();
+    // Recargar datos y actualizar ranking si está visible
+    await loadAll();
+    if(curView==="rank") { renderRankFilters(); renderRank(curFilter); }
   }catch(err){toast("Error al guardar","err");console.error(err);}
   btn.disabled=false;btn.textContent="Guardar quiniela";
 });
@@ -1069,8 +1049,46 @@ document.getElementById("syncBtn").addEventListener("click",async()=>{
   btn.disabled=true;btn.textContent="Sincronizando…";
   await syncResults(false);
   renderAdmin();
-  renderCompare();
   btn.disabled=false;btn.textContent="↻ Sincronizar";
+});
+
+// Botón para limpiar duplicados (desde el frontend)
+document.getElementById("cleanBtn").addEventListener("click", async () => {
+  if (!unlocked) { toast("Necesitas el PIN para esta acción", "err"); return; }
+  if (!confirm("¿Eliminar duplicados? Se conservará el registro más reciente de cada jugador.")) return;
+  try {
+    const all = await sbGet("quinielas");
+    const map = new Map();
+    const toDelete = [];
+    all.forEach(q => {
+      const existing = map.get(q.jugador);
+      if (!existing || q.id > existing.id) {
+        if (existing) toDelete.push(existing.id);
+        map.set(q.jugador, q);
+      } else {
+        toDelete.push(q.id);
+      }
+    });
+    if (toDelete.length === 0) {
+      toast("No hay duplicados", "ok");
+      return;
+    }
+    for (const id of toDelete) {
+      const r = await fetch(`${SB_URL}/rest/v1/quinielas?id=eq.${id}`, {
+        method: 'DELETE',
+        headers: HEADERS
+      });
+      if (!r.ok) throw new Error(await r.text());
+    }
+    toast(`Se eliminaron ${toDelete.length} registros duplicados`, "ok");
+    await loadAll();
+    renderAdmin();
+    renderRankFilters();
+    renderRank(curFilter);
+  } catch (err) {
+    toast("Error al limpiar: " + err.message, "err");
+    console.error(err);
+  }
 });
 
 // ====== CANDADO DE CAPTURA ======
@@ -1109,11 +1127,16 @@ document.getElementById("refreshBtn").addEventListener("click",async()=>{
   toast("Ranking actualizado","ok");
 });
 
+// Cerrar modal
+document.getElementById("closeModal").addEventListener("click", function() {
+  document.getElementById("playerModal").classList.remove("show");
+});
+document.getElementById("playerModal").addEventListener("click", function(e) {
+  if (e.target === this) this.classList.remove("show");
+});
+
 // ============================================================
-//  AUTO-REFRESCO (vía intermedia)
-//  Mientras alguien tenga abierta la pestaña Resultados o Ranking,
-//  sincroniza solo cada 3 min en segundo plano. No corre si la
-//  pestaña del navegador está oculta (ahorra datos/batería).
+//  AUTO-REFRESCO
 // ============================================================
 const AUTO_MS = 3*60*1000;
 async function autoTick(){
@@ -1121,9 +1144,9 @@ async function autoTick(){
   if(curView!=="admin" && curView!=="rank") return;
   try{
     await loadAll();
-    const changed = await syncResults(true); // silencioso
+    const changed = await syncResults(true);
     await loadAll();
-    if(curView==="admin"){ renderAdmin(); renderCompare(); }
+    if(curView==="admin"){ renderAdmin(); }
     if(curView==="rank"){ renderRank(curFilter); }
     if(changed>0) toast("Resultados actualizados solos","ok");
   }catch(e){ console.error("auto-sync",e); }
@@ -1131,7 +1154,7 @@ async function autoTick(){
 setInterval(autoTick, AUTO_MS);
 
 // ============================================================
-//  CONFETI (explosión tricolor al guardar)
+//  CONFETI
 // ============================================================
 function burstConfetti(){
   const colors=["#e7b84b","#2bb673","#ffffff","#3da5ff","#e0556b"];
@@ -1187,8 +1210,6 @@ function burstConfetti(){
 (async function(){
   await loadAll();
   renderPlay();
-  // Sincroniza en segundo plano al abrir: si hay partidos recién jugados,
-  // se ocultan solos de la lista de Jugar.
   try{
     const changed = await syncResults(true);
     if(changed>0){ await loadAll(); renderPlay(); }
