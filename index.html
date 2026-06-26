@@ -948,16 +948,8 @@ function scoreMatch(pick,res,type){
   return {pts,hit};
 }
 
-function renderRank(filter){
+function renderRank(filter){function renderRank(filter){
   filter=filter||curFilter;
-  // Obtener fecha de registro de cada jugador (para desempate)
-  // Asumimos que cada jugador tiene un id y su fecha de creación se puede obtener de la base
-  // Pero no tenemos created_at en el objeto QUINIELAS. Podemos obtenerlo de la tabla.
-  // Para simplificar, usamos el id como proxy (mayor id = más reciente, pero para desempate queremos el más antiguo)
-  // Si no tenemos created_at, usamos id (menor id = más antiguo) como criterio de desempate.
-  // Pero mejor: en loadAll podríamos guardar el created_at. Lo añadimos.
-  // Por ahora, asumimos que el orden de QUINIELAS es el de la base (que ya está ordenado por id? no, mejor lo hacemos explícito)
-  // Para desempate, usaremos el id (menor id = más antiguo, es decir, registrado antes)
   const rows = QUINIELAS.map(q => {
     let tot=0,hits=0,first=0,played=0;
     MATCHES.forEach(m => {
@@ -972,7 +964,6 @@ function renderRank(filter){
     });
     return { name: q.jugador, tot, hits, first, id: q.id };
   });
-  // Orden: puntos descendente, luego aciertos en primer gol descendente, luego id ascendente (más antiguo primero)
   rows.sort((a,b) => b.tot - a.tot || b.hits - a.hits || b.first - a.first || a.id - b.id);
 
   const box = document.getElementById("rankTable");
@@ -986,7 +977,6 @@ function renderRank(filter){
     const top3 = rows.slice(0,3);
     const rest = rows.slice(3);
     html += `<div class="podium">`;
-    // Orden: 2º, 1º, 3º
     const order = [1,0,2];
     order.forEach(idx => {
       if(idx >= top3.length) return;
@@ -996,7 +986,7 @@ function renderRank(filter){
       html += `<div class="podium-item ${cls}">
         <div class="medal">${medal}</div>
         <div class="podium-box">
-          <div class="name">${r.name}</div>
+          <div class="name" data-player="${r.name}" style="cursor:pointer;">${r.name}</div>
           <div class="pts">${r.tot} <span class="u">pts</span></div>
           <div class="sub">${r.hits} aciertos${r.first?` · ${r.first} 1er gol`:''}</div>
         </div>
@@ -1004,7 +994,6 @@ function renderRank(filter){
     });
     html += `</div>`;
 
-    // Resto de participantes en lista
     if(rest.length > 0){
       html += `<div class="rank-card" style="margin-top:16px;">`;
       rest.forEach((r,i) => {
@@ -1020,8 +1009,9 @@ function renderRank(filter){
   }
 
   box.innerHTML = html;
-  // Listeners para abrir modal
-  box.querySelectorAll('.who[data-player]').forEach(el => {
+
+  // Listeners para todos los elementos con data-player (tanto podio como lista)
+  box.querySelectorAll('[data-player]').forEach(el => {
     el.addEventListener('click', function() {
       const playerName = this.dataset.player;
       showPlayerDetails(playerName);
