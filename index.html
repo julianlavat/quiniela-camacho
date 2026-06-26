@@ -142,10 +142,6 @@
   .opt.disabled{opacity:0.5;cursor:not-allowed;pointer-events:none}
   .opt .f{font-size:16px}
 
-  .desempate{margin-top:10px;padding:10px 12px;border-radius:10px;
-    background:rgba(231,184,75,.07);border:1px solid var(--gold2)}
-  .desempate .lbl{color:var(--gold)}
-
   /* Selector de marcador exacto (campos escribibles) */
   .score-pick{display:flex;align-items:center;justify-content:center;gap:14px;margin:8px 0 2px}
   .score-col{display:flex;flex-direction:column;align-items:center;gap:6px}
@@ -283,7 +279,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · <span style="opacity:.5;font-size:11px">v3.1</span></p>
+    <p>Mundial 2026 · <span style="opacity:.5;font-size:11px">v3.2</span></p>
     <div class="rule"></div>
   </header>
 
@@ -616,11 +612,10 @@ function deriveFromScore(ga,gb){
   ga=+ga; gb=+gb;
   return {
     who: ga>gb?"a":(gb>ga?"b":"draw"),
-    over: (ga+gb)>2.5 ? "over":"under",
-    btts: (ga>0&&gb>0) ? "yes":"no",
     ga, gb
   };
 }
+
 function scoreSelector(mid,p,disabled){
   const ga=p.ga, gb=p.gb;
   const d=deriveFromScore(ga,gb);
@@ -628,8 +623,6 @@ function scoreSelector(mid,p,disabled){
   if(d){
     derived=`<div class="derived">
       <span>Gana: <b>${d.who==="a"?"local":d.who==="b"?"visita":"empate"}</b></span>
-      <span>Goles: <b>${d.over==="over"?"+2.5":"−2.5"}</b></span>
-      <span>Ambos anotan: <b>${d.btts==="yes"?"sí":"no"}</b></span>
     </div>`;
   }
   return `<div class="score-pick">
@@ -725,22 +718,6 @@ function renderPlay(){
     const p = curPicks[m.id] || {};
     const hasPick = p && (p.who || (p.ga != null && p.gb != null));
     const disabled = hasPick;
-    const isDraw = p.who==="draw";
-    // Determinar opciones para "first" según el marcador
-    let firstOpts = [];
-    const ga = p.ga, gb = p.gb;
-    if (ga === 0 && gb === 0) {
-      firstOpts = [{v:"none",t:"Sin goles",f:"🚫"}];
-    } else if (ga != null && gb != null) {
-      firstOpts = [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}];
-    } else {
-      firstOpts = [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}];
-    }
-    // Determinar si mostrar desempate de tiros a gol
-    const d = deriveFromScore(p.ga, p.gb);
-    const isDrawScore = d && d.who === "draw";
-    const showShots = isDrawScore && !isKO && !(p.ga === 0 && p.gb === 0);
-
     html+=`<div class="card">
       <div class="top">
         <div class="team"><span class="flag">${fl(m.a)}</span><span class="nm">${m.a}</span></div>
@@ -752,23 +729,8 @@ function renderPlay(){
           <span class="badge ${m.type}">${m.type==="hist"?"🟡 Vale +1":"🟢 Reglas nuevas"}</span>
           ${hasPick ? `<span class="badge-done">✅ Predicción guardada</span>` : ''}
         </div>`;
-    if(m.type==="hist"){
-      html+=`<div class="q"><span class="lbl">¿Quién gana?</span>
-        ${optButtons("who",m.id,p.who||"",
-          isKO
-          ? [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}]
-          : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}],
-          disabled)}</div>`;
-    }else{
-      html+=`<div class="q"><span class="lbl">Marcador exacto <span class="mini">+3</span> · de aquí salen ganador, goles y ambos anotan</span>
-        ${scoreSelector(m.id,{...p,_a:m.a,_b:m.b}, disabled)}</div>`;
-      html+=`<div class="q"><span class="lbl">¿Quién anota primero? <span class="mini">+1</span></span>
-        ${optButtons("first",m.id,p.first||"", firstOpts, disabled)}</div>`;
-      if(showShots){
-        html+=`<div class="desempate"><div class="q" style="margin:0"><span class="lbl">Predijiste empate → ¿más tiros a gol? <span class="mini">+1</span></span>
-          ${optButtons("shots",m.id,p.shots||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}], disabled)}</div></div>`;
-      }
-    }
+    html+=`<div class="q"><span class="lbl">Marcador exacto <span class="mini">+5 si aciertas · +3 si aciertas ganador y diferencia · +1 si aciertas ganador</span></span>
+      ${scoreSelector(m.id,{...p,_a:m.a,_b:m.b}, disabled)}</div>`;
     html+=`</div></div>`;
   });
   box.innerHTML=html;
@@ -925,29 +887,39 @@ function renderRankFilters(){
 function scoreMatch(pick,res,type){
   if(!res||!res.who) return {pts:0,hit:false};
   let pts=0,hit=false;
+  // Históricos: solo acierta ganador +1
   if(type==="hist"){
     if(pick&&pick.who&&pick.who===res.who){pts+=1;hit=true;}
     return {pts,hit};
   }
+  // Nuevos: puntuación por cercanía del marcador
   const dp = (pick && pick.ga!=null && pick.gb!=null) ? deriveFromScore(pick.ga,pick.gb) : null;
   const dr = (res.ga!=null && res.gb!=null) ? deriveFromScore(res.ga,res.gb) : null;
-  if(dp && res.ga!=null && +pick.ga===+res.ga && +pick.gb===+res.gb){
-    pts += 3;
+  if(!dp || !dr) return {pts:0,hit:false};
+  
+  // Marcador exacto
+  if(+pick.ga === +res.ga && +pick.gb === +res.gb){
+    pts = 5;
     hit = true;
   }
-  else if(dp && dp.who===res.who){
-    pts += 1;
+  // Ganador y diferencia de goles correcta
+  else if(dp.who === dr.who && (pick.ga - pick.gb) === (res.ga - res.gb)){
+    pts = 3;
     hit = true;
   }
-  if(pick && pick.first && pick.first===res.first) pts += 1;
-  if(res.who==="draw" && pick && pick.shots && pick.shots===res.shots) pts += 1;
+  // Ganador correcto (sin importar diferencia)
+  else if(dp.who === dr.who){
+    pts = 1;
+    hit = true;
+  }
+  // Si no acierta ganador, 0 puntos
   return {pts,hit};
 }
 
 function renderRank(filter){
   filter=filter||curFilter;
   const rows = QUINIELAS.map(q => {
-    let tot=0,hits=0,first=0,played=0;
+    let tot=0,hits=0,played=0;
     MATCHES.forEach(m => {
       if(m.stage!==filter) return;
       const pick = (q.picks||{})[m.id];
@@ -956,11 +928,10 @@ function renderRank(filter){
       const s = scoreMatch(pick, res, m.type);
       tot += s.pts;
       if(s.hit) hits++;
-      if(m.type==="new" && pick && res && res.who && pick.first && pick.first===res.first) first++;
     });
-    return { name: q.jugador, tot, hits, first, id: q.id };
+    return { name: q.jugador, tot, hits, id: q.id };
   });
-  rows.sort((a,b) => b.tot - a.tot || b.hits - a.hits || b.first - a.first || a.id - b.id);
+  rows.sort((a,b) => b.tot - a.tot || b.hits - a.hits || a.id - b.id);
 
   const box = document.getElementById("rankTable");
   if(!rows.length){ box.innerHTML = `<div class="empty">Aún no hay quinielas guardadas para esta etapa.</div>`; return; }
@@ -983,7 +954,7 @@ function renderRank(filter){
         <div class="podium-box">
           <div class="name" data-player="${r.name}" style="cursor:pointer;">${r.name}</div>
           <div class="pts">${r.tot} <span class="u">pts</span></div>
-          <div class="sub">${r.hits} aciertos${r.first?` · ${r.first} 1er gol`:''}</div>
+          <div class="sub">${r.hits} aciertos</div>
         </div>
       </div>`;
     });
@@ -995,7 +966,7 @@ function renderRank(filter){
         const pos = i+4;
         html += `<div class="rrow">
           <div class="pos">${pos}</div>
-          <div class="who" data-player="${r.name}">${r.name}<span class="sub">${r.hits} aciertos${r.first?` · ${r.first} 1er gol`:''}</span></div>
+          <div class="who" data-player="${r.name}">${r.name}<span class="sub">${r.hits} aciertos</span></div>
           <div class="pts">${r.tot}<span class="u">pts</span></div>
         </div>`;
       });
@@ -1052,7 +1023,6 @@ function showPlayerDetails(playerName) {
         pickStr = pick.who === 'a' ? m.a : (pick.who === 'b' ? m.b : 'Empate');
       } else {
         pickStr = `${pick.ga ?? '?'} - ${pick.gb ?? '?'}`;
-        if (pick.first) pickStr += ` (1er: ${pick.first === 'a' ? m.a : pick.first === 'b' ? m.b : 'sin goles'})`;
       }
       if (s.pts > 0) pickStr += ` +${s.pts}`;
     } else {
@@ -1135,9 +1105,7 @@ document.addEventListener("input", e=>{
     if(val>20) val=20;
     curPicks[m][key]=val;
   }
-  const d=deriveFromScore(curPicks[m].ga,curPicks[m].gb);
-  if(!d || d.who!=="draw") delete curPicks[m].shots;
-  // Forzar re-render para actualizar opciones de "first" y desempate
+  // Forzar re-render para actualizar resumen
   renderPlay();
 });
 
@@ -1181,27 +1149,28 @@ document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-act=pick]");
   if(!b || b.disabled) return;
   const{f,m,v}=b.dataset;
-  if(f==="who"||f==="first"||f==="shots"){
-    curPicks[m]=curPicks[m]||{};
-    if(curPicks[m][f]===v){ delete curPicks[m][f]; }
-    else { curPicks[m][f]=v; }
-    if(f==="who"&&curPicks[m].who!=="draw") delete curPicks[m].shots;
-    renderPlay();
-  }else if(f==="rwho"||f==="rfirst"||f==="rshots"){
-    if(!unlocked){toast("Necesitas el PIN para capturar resultados","err");return;}
-    const key=f==="rwho"?"who":f==="rfirst"?"first":"shots";
-    RESULTS[m]=RESULTS[m]||{};
-    if(RESULTS[m][key]===v){ delete RESULTS[m][key]; }
-    else { RESULTS[m][key]=v; }
-    if(key==="who"&&RESULTS[m].who!=="draw") delete RESULTS[m].shots;
-    const mm=MATCHES.find(x=>x.id===m);
-    try{
-      await sbUpsert("partidos",{id:m,grupo:mm.grp,equipo_a:mm.a,equipo_b:mm.b,
-        res_who:RESULTS[m].who||null,res_first:RESULTS[m].first||null,res_shots:RESULTS[m].shots||null,
-        res_ga:RESULTS[m].ga!=null?RESULTS[m].ga:null,res_gb:RESULTS[m].gb!=null?RESULTS[m].gb:null});
-      toast(RESULTS[m][key]?"Resultado guardado":"Resultado borrado","ok");
-      renderAdmin();
-    }catch(err){toast("No se pudo guardar","err");console.error(err);}
+  if(f==="who"||f==="rwho"||f==="rfirst"||f==="rshots"){
+    if(f==="who"){
+      curPicks[m]=curPicks[m]||{};
+      if(curPicks[m].who===v){ delete curPicks[m].who; }
+      else { curPicks[m].who=v; }
+      renderPlay();
+    } else if(f==="rwho"||f==="rfirst"||f==="rshots"){
+      if(!unlocked){toast("Necesitas el PIN para capturar resultados","err");return;}
+      const key=f==="rwho"?"who":f==="rfirst"?"first":"shots";
+      RESULTS[m]=RESULTS[m]||{};
+      if(RESULTS[m][key]===v){ delete RESULTS[m][key]; }
+      else { RESULTS[m][key]=v; }
+      if(key==="who"&&RESULTS[m].who!=="draw") delete RESULTS[m].shots;
+      const mm=MATCHES.find(x=>x.id===m);
+      try{
+        await sbUpsert("partidos",{id:m,grupo:mm.grp,equipo_a:mm.a,equipo_b:mm.b,
+          res_who:RESULTS[m].who||null,res_first:RESULTS[m].first||null,res_shots:RESULTS[m].shots||null,
+          res_ga:RESULTS[m].ga!=null?RESULTS[m].ga:null,res_gb:RESULTS[m].gb!=null?RESULTS[m].gb:null});
+        toast(RESULTS[m][key]?"Resultado guardado":"Resultado borrado","ok");
+        renderAdmin();
+      }catch(err){toast("No se pudo guardar","err");console.error(err);}
+    }
   }
 });
 
