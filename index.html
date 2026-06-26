@@ -198,7 +198,8 @@
   .podium{display:flex;justify-content:center;align-items:flex-end;gap:16px;margin:20px 0 30px;padding:10px 0}
   .podium-item{display:flex;flex-direction:column;align-items:center;text-align:center}
   .podium-item .medal{font-size:40px;line-height:1}
-  .podium-item .name{font-weight:800;font-size:16px;color:var(--chalk);margin-top:4px}
+  .podium-item .name{font-weight:800;font-size:16px;color:var(--chalk);margin-top:4px;cursor:pointer}
+  .podium-item .name:hover{color:var(--gold)}
   .podium-item .pts{font-family:"Arial Narrow",sans-serif;font-weight:800;font-size:20px;color:var(--gold)}
   .podium-item .sub{font-size:11px;color:var(--chalk3)}
   .podium-1 .medal{font-size:60px}
@@ -456,7 +457,7 @@ const STAGES = [
 MATCHES.forEach(m=>{ if(!m.stage) m.stage="ronda1"; });
 function activeStages(){ return STAGES.filter(s=>MATCHES.some(m=>m.stage===s.key)); }
 
-let curStage = "ronda1"; // etapa seleccionada actualmente
+let curStage = "ronda1";
 let RESULTS = {};
 let QUINIELAS = [];
 let curPicks = {};
@@ -464,7 +465,6 @@ let curFilter = "ronda1";
 let curView = "play";
 let unlocked = false;
 try{ unlocked = localStorage.getItem("quiniela_admin")==="1"; }catch(e){ unlocked=false; }
-// doneMatches ya no se usa para ocultar, solo para saber si ya predijo (se recalcula cada vez)
 let doneMatches = {};
 try{ doneMatches = JSON.parse(localStorage.getItem("quiniela_done")||"{}"); }catch(e){ doneMatches = {}; }
 function saveDone(){ try{ localStorage.setItem("quiniela_done",JSON.stringify(doneMatches)); }catch(e){} }
@@ -500,20 +500,16 @@ function normalizeName(name){
 
 async function upsertQuiniela(obj) {
   const normalized = normalizeName(obj.jugador);
-  // Buscar por nombre normalizado para evitar duplicados por variantes
   const resp = await fetch(
     `${SB_URL}/rest/v1/quinielas?jugador=eq.${encodeURIComponent(obj.jugador)}`,
     { headers: HEADERS }
   );
   if (!resp.ok) throw new Error(await resp.text());
   let data = await resp.json();
-  // Si no se encontró exactamente, buscar por normalizado (puede haber variantes)
   if (!data || data.length === 0) {
-    // Buscar todos los jugadores y filtrar por normalizado (no eficiente pero es lo que hay)
     const all = await sbGet("quinielas");
     const candidates = all.filter(q => normalizeName(q.jugador) === normalized);
     if (candidates.length > 0) {
-      // Ordenar por id descendente y tomar el más reciente
       candidates.sort((a,b) => b.id - a.id);
       data = [candidates[0]];
     }
@@ -543,13 +539,11 @@ async function loadAll(){
     const [parts,quis]=await Promise.all([sbGet("partidos"),sbGet("quinielas")]);
     RESULTS={};
     parts.forEach(p=>{RESULTS[p.id]={who:p.res_who,first:p.res_first,shots:p.res_shots,ga:p.res_ga,gb:p.res_gb}});
-    // Agrupar por nombre normalizado y quedarse con el más reciente
     const map = new Map();
     quis.forEach(q => {
       const norm = normalizeName(q.jugador);
       const existing = map.get(norm);
       if (!existing || q.id > existing.id) {
-        // Guardamos el registro con el nombre original del más reciente
         map.set(norm, { id: q.id, jugador: q.jugador, picks: q.picks });
       }
     });
@@ -717,8 +711,6 @@ function renderPlay(){
   if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"ronda1";
   renderStageBar("stage-bar-play", renderPlay);
   const stageMatches = MATCHES.filter(m=>m.stage===curStage);
-  // No filtramos por "new" ni por "done", mostramos todos los partidos de la etapa
-  // pero con estilo diferente si ya tiene predicción
   const box=document.getElementById("matches");
   if(!stageMatches.length){
     box.innerHTML=`<div class="empty">No hay partidos en esta etapa.</div>`;
@@ -732,7 +724,6 @@ function renderPlay(){
     if(m.day!==lastDay){html+=`<div class="daygroup">${m.day}</div>`;lastDay=m.day;}
     const p = curPicks[m.id] || {};
     const hasPick = p && (p.who || (p.ga != null && p.gb != null));
-    // Deshabilitar edición si ya hay pick (solo lectura)
     const disabled = hasPick;
     const isDraw = p.who==="draw";
     html+=`<div class="card">
@@ -831,7 +822,6 @@ function renderAdmin(){
   const stages=activeStages();
   if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"ronda1";
   renderStageBar("stage-bar-admin", renderAdmin);
-  // Actualizar nota
   const stageLabel = STAGES.find(s=>s.key===curStage)?.label || curStage;
   document.getElementById('adminNota').innerHTML = `📌 Resultados de la <b>${stageLabel}</b>.`;
 
@@ -919,36 +909,29 @@ function renderRankFilters(){
   document.getElementById('rankNota').innerHTML = `📌 Ranking de la <b>${stageLabel}</b>.`;
 }
 
-// Nueva función de puntuación simplificada
 function scoreMatch(pick,res,type){
   if(!res||!res.who) return {pts:0,hit:false};
   let pts=0,hit=false;
-  // Históricos (ronda 1): solo ganador +1
   if(type==="hist"){
     if(pick&&pick.who&&pick.who===res.who){pts+=1;hit=true;}
     return {pts,hit};
   }
-  // Nuevos: sistema simplificado
   const dp = (pick && pick.ga!=null && pick.gb!=null) ? deriveFromScore(pick.ga,pick.gb) : null;
   const dr = (res.ga!=null && res.gb!=null) ? deriveFromScore(res.ga,res.gb) : null;
-  // Marcador exacto: +3
   if(dp && res.ga!=null && +pick.ga===+res.ga && +pick.gb===+res.gb){
     pts += 3;
     hit = true;
   }
-  // Ganador correcto (si no acertó marcador exacto): +1
   else if(dp && dp.who===res.who){
     pts += 1;
     hit = true;
   }
-  // Primer gol: +1
   if(pick && pick.first && pick.first===res.first) pts += 1;
-  // Tiros a gol (solo si resultado real fue empate y pick tiene shots): +1
   if(res.who==="draw" && pick && pick.shots && pick.shots===res.shots) pts += 1;
   return {pts,hit};
 }
 
-function renderRank(filter){function renderRank(filter){
+function renderRank(filter){
   filter=filter||curFilter;
   const rows = QUINIELAS.map(q => {
     let tot=0,hits=0,first=0,played=0;
@@ -972,7 +955,6 @@ function renderRank(filter){function renderRank(filter){
   const stageLabel = STAGES.find(s=>s.key===filter)?.label||filter;
   let html = `<div class="rank-scope">📍 ${stageLabel}</div>`;
 
-  // Podio para los 3 primeros
   if(rows.length > 0){
     const top3 = rows.slice(0,3);
     const rest = rows.slice(3);
@@ -1127,7 +1109,6 @@ document.querySelectorAll(".tab").forEach(t=>{
   });
 });
 
-// Captura del marcador escribiendo el número (Jugar)
 document.addEventListener("input", e=>{
   const inp=e.target.closest("[data-act=scoreinput]");
   if(!inp || inp.disabled) return;
@@ -1237,7 +1218,6 @@ document.addEventListener("click",async e=>{
   }
 });
 
-// Selector de jugador en Jugar
 document.getElementById('playerSelect').addEventListener('change', function() {
   const name = this.value;
   if (name) {
@@ -1261,7 +1241,6 @@ document.getElementById("saveBtn").addEventListener("click",async()=>{
   btn.disabled=true;btn.textContent="Guardando…";
   try{
     await upsertQuiniela({ jugador: name, picks: curPicks });
-    // Después de guardar, recargar datos para actualizar lista
     await loadAll();
     populatePlayerSelect();
     select.value = name;
@@ -1321,7 +1300,6 @@ document.getElementById("cleanBtn").addEventListener("click", async () => {
   }
 });
 
-// ====== CANDADO DE CAPTURA ======
 function applyLock(){
   const locked = !unlocked;
   document.getElementById("lock-screen").classList.toggle("hide",!locked);
@@ -1357,7 +1335,6 @@ document.getElementById("refreshBtn").addEventListener("click",async()=>{
   toast("Ranking actualizado","ok");
 });
 
-// Cerrar modal
 document.getElementById("closeModal").addEventListener("click", function() {
   document.getElementById("playerModal").classList.remove("show");
 });
@@ -1365,9 +1342,6 @@ document.getElementById("playerModal").addEventListener("click", function(e) {
   if (e.target === this) this.classList.remove("show");
 });
 
-// ============================================================
-//  AUTO-REFRESCO
-// ============================================================
 const AUTO_MS = 3*60*1000;
 async function autoTick(){
   if(document.hidden) return;
@@ -1383,9 +1357,6 @@ async function autoTick(){
 }
 setInterval(autoTick, AUTO_MS);
 
-// ============================================================
-//  CONFETI
-// ============================================================
 function burstConfetti(){
   const colors=["#e7b84b","#2bb673","#ffffff","#3da5ff","#e0556b"];
   const cv=document.createElement("canvas");
@@ -1434,9 +1405,6 @@ function burstConfetti(){
   frame();
 }
 
-// ============================================================
-//  INIT
-// ============================================================
 (async function(){
   await loadAll();
   populatePlayerSelect();
