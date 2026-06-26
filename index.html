@@ -283,7 +283,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · <span style="opacity:.5;font-size:11px">v3.0</span></p>
+    <p>Mundial 2026 · <span style="opacity:.5;font-size:11px">v3.1</span></p>
     <div class="rule"></div>
   </header>
 
@@ -726,6 +726,21 @@ function renderPlay(){
     const hasPick = p && (p.who || (p.ga != null && p.gb != null));
     const disabled = hasPick;
     const isDraw = p.who==="draw";
+    // Determinar opciones para "first" según el marcador
+    let firstOpts = [];
+    const ga = p.ga, gb = p.gb;
+    if (ga === 0 && gb === 0) {
+      firstOpts = [{v:"none",t:"Sin goles",f:"🚫"}];
+    } else if (ga != null && gb != null) {
+      firstOpts = [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}];
+    } else {
+      firstOpts = [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}];
+    }
+    // Determinar si mostrar desempate de tiros a gol
+    const d = deriveFromScore(p.ga, p.gb);
+    const isDrawScore = d && d.who === "draw";
+    const showShots = isDrawScore && !isKO && !(p.ga === 0 && p.gb === 0);
+
     html+=`<div class="card">
       <div class="top">
         <div class="team"><span class="flag">${fl(m.a)}</span><span class="nm">${m.a}</span></div>
@@ -745,13 +760,11 @@ function renderPlay(){
           : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}],
           disabled)}</div>`;
     }else{
-      const d=deriveFromScore(p.ga,p.gb);
-      const isDrawScore = d && d.who==="draw";
       html+=`<div class="q"><span class="lbl">Marcador exacto <span class="mini">+3</span> · de aquí salen ganador, goles y ambos anotan</span>
         ${scoreSelector(m.id,{...p,_a:m.a,_b:m.b}, disabled)}</div>`;
       html+=`<div class="q"><span class="lbl">¿Quién anota primero? <span class="mini">+1</span></span>
-        ${optButtons("first",m.id,p.first||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}], disabled)}</div>`;
-      if(isDrawScore && !isKO){
+        ${optButtons("first",m.id,p.first||"", firstOpts, disabled)}</div>`;
+      if(showShots){
         html+=`<div class="desempate"><div class="q" style="margin:0"><span class="lbl">Predijiste empate → ¿más tiros a gol? <span class="mini">+1</span></span>
           ${optButtons("shots",m.id,p.shots||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}], disabled)}</div></div>`;
       }
@@ -992,7 +1005,6 @@ function renderRank(filter){
 
   box.innerHTML = html;
 
-  // Listeners para todos los elementos con data-player (tanto podio como lista)
   box.querySelectorAll('[data-player]').forEach(el => {
     el.addEventListener('click', function() {
       const playerName = this.dataset.player;
@@ -1125,34 +1137,9 @@ document.addEventListener("input", e=>{
   }
   const d=deriveFromScore(curPicks[m].ga,curPicks[m].gb);
   if(!d || d.who!=="draw") delete curPicks[m].shots;
-  updateDerivedRow(m);
+  // Forzar re-render para actualizar opciones de "first" y desempate
+  renderPlay();
 });
-
-function updateDerivedRow(mid){
-  const inputEl=document.querySelector(`#matches [data-m="${mid}"][data-act="scoreinput"]`);
-  const card=inputEl?inputEl.closest(".card"):null;
-  if(!card) return;
-  const p=curPicks[mid]||{};
-  const d=deriveFromScore(p.ga,p.gb);
-  let derEl=card.querySelector(".derived");
-  if(d){
-    const htmlDer=`<span>Gana: <b>${d.who==="a"?"local":d.who==="b"?"visita":"empate"}</b></span>
-      <span>Goles: <b>${d.over==="over"?"+2.5":"−2.5"}</b></span>
-      <span>Ambos anotan: <b>${d.btts==="yes"?"sí":"no"}</b></span>`;
-    if(derEl){ derEl.innerHTML=htmlDer; }
-    else {
-      derEl=document.createElement("div");
-      derEl.className="derived";
-      derEl.innerHTML=htmlDer;
-      card.querySelector(".score-pick").after(derEl);
-    }
-  }else if(derEl){ derEl.remove(); }
-  const isDraw = d && d.who==="draw";
-  const desEl=card.querySelector(".desempate");
-  if((isDraw && !desEl) || (!isDraw && desEl)){
-    renderPlay();
-  }
-}
 
 document.addEventListener("click",async e=>{
   const clr=e.target.closest("[data-act=clearres]");
