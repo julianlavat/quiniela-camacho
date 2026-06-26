@@ -128,6 +128,7 @@
   .badge.hist{color:var(--gold);background:rgba(231,184,75,.1);border:1px solid var(--gold2)}
   .badge.new{color:var(--win);background:rgba(43,182,115,.1);border:1px solid var(--win)}
   .badge-row{display:flex;justify-content:center;margin:-6px 0 10px}
+  .badge-done{color:var(--win);background:rgba(43,182,115,.15);border:1px solid var(--win);padding:3px 10px;border-radius:7px;font-weight:700;font-size:11px;}
 
   .q{margin:12px 0 0}
   .q .lbl{font-size:12.5px;color:var(--chalk2);margin:0 0 7px;display:block;font-weight:600}
@@ -138,6 +139,7 @@
     transition:.12s;display:flex;align-items:center;justify-content:center;gap:5px}
   .opt:hover{border-color:var(--chalk3)}
   .opt.sel{background:linear-gradient(180deg,var(--info),#2b7fd4);border-color:var(--info);color:#fff;font-weight:700}
+  .opt.disabled{opacity:0.5;cursor:not-allowed;pointer-events:none}
   .opt .f{font-size:16px}
 
   .desempate{margin-top:10px;padding:10px 12px;border-radius:10px;
@@ -154,6 +156,7 @@
   .score-input::-webkit-outer-spin-button,.score-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .score-input:focus{border-color:var(--gold);background:var(--card)}
   .score-input::placeholder{color:var(--chalk3);font-size:28px}
+  .score-input:disabled{opacity:0.5;cursor:not-allowed;background:var(--card)}
   .score-dash{font-size:24px;color:var(--chalk3);font-weight:700;align-self:center;margin-top:22px}
   .derived{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px}
   .derived span{font-size:11px;color:var(--chalk2);background:var(--card2);border:1px solid var(--line);
@@ -190,13 +193,27 @@
   .ronda-nota{font-size:12.5px;line-height:1.5;color:var(--chalk2);background:rgba(231,184,75,.08);
     border:1px solid var(--gold2);border-radius:12px;padding:11px 14px;margin:0 0 16px}
   .ronda-nota b{color:var(--gold)}
+
+  /* Estilos para el podio */
+  .podium{display:flex;justify-content:center;align-items:flex-end;gap:16px;margin:20px 0 30px;padding:10px 0}
+  .podium-item{display:flex;flex-direction:column;align-items:center;text-align:center}
+  .podium-item .medal{font-size:40px;line-height:1}
+  .podium-item .name{font-weight:800;font-size:16px;color:var(--chalk);margin-top:4px}
+  .podium-item .pts{font-family:"Arial Narrow",sans-serif;font-weight:800;font-size:20px;color:var(--gold)}
+  .podium-item .sub{font-size:11px;color:var(--chalk3)}
+  .podium-1 .medal{font-size:60px}
+  .podium-1 .name{font-size:22px;color:var(--gold)}
+  .podium-1 .pts{font-size:28px}
+  .podium-box{background:rgba(15,42,34,0.5);border-radius:16px;padding:12px 20px;min-width:100px;border:1px solid var(--line)}
+  .podium-1 .podium-box{background:rgba(231,184,75,0.15);border-color:var(--gold);min-width:130px}
+  .podium-2 .podium-box{background:rgba(200,200,200,0.1);border-color:#aaa}
+  .podium-3 .podium-box{background:rgba(205,127,77,0.1);border-color:#cd7f4d}
+
+  /* Lista de resto de participantes */
   .rrow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line)}
   .rrow:last-child{border-bottom:none}
   .rrow .pos{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
     font-weight:800;font-size:14px;background:var(--card2);color:var(--chalk2);flex-shrink:0}
-  .rrow.p1 .pos{background:linear-gradient(180deg,var(--gold),var(--gold2));color:#231a02}
-  .rrow.p2 .pos{background:linear-gradient(180deg,#cfd4d6,#9aa0a6);color:#1a1a1a}
-  .rrow.p3 .pos{background:linear-gradient(180deg,#cd7f4d,#a85f30);color:#fff}
   .rrow .who{flex:1;font-weight:700;font-size:15px;cursor:pointer}
   .rrow .who:hover{color:var(--gold)}
   .rrow .who .sub{display:block;font-weight:500;font-size:11.5px;color:var(--chalk3);margin-top:1px}
@@ -251,6 +268,10 @@
     .opt{min-width:64px;font-size:12px}
     .daygroup{font-size:24px}
     .modal-grid{grid-template-columns:1fr 1fr 1fr;font-size:12px;}
+    .podium{flex-wrap:wrap;gap:8px}
+    .podium-item .medal{font-size:30px}
+    .podium-1 .medal{font-size:44px}
+    .podium-box{min-width:70px;padding:8px 12px}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -261,7 +282,7 @@
     <div class="trophy">🏆</div>
     <h1>Quiniela de la Familia Camacho</h1>
     <p class="byline">by <b>Julien Saint-Requier</b></p>
-    <p>Mundial 2026 · Fase de grupos <span style="opacity:.5;font-size:11px">· v2.9</span></p>
+    <p>Mundial 2026 · <span style="opacity:.5;font-size:11px">v3.0</span></p>
     <div class="rule"></div>
   </header>
 
@@ -285,7 +306,7 @@
 
   <!-- ADMIN -->
   <section id="v-admin" class="hide">
-    <div class="ronda-nota">📌 Esta es la quiniela de la <b>2ª ronda</b> (segundos partidos, 18–23 jun). El <b>miércoles 24 de junio</b> arranca la ronda del 3er partido, que ya podrás predecir en la pestaña <b>Jugar</b>.</div>
+    <div id="adminNota" class="ronda-nota">📌 Resultados de la <b>Ronda 1</b>.</div>
     <div id="lock-screen" class="lock">
       <div class="lock-icon">🔒</div>
       <div class="lock-title">Zona protegida</div>
@@ -313,7 +334,7 @@
 
   <!-- RANKING -->
   <section id="v-rank" class="hide">
-    <div id="rankNota" class="ronda-nota">📌 Ranking de la <b>Fase de Grupos</b>.</div>
+    <div id="rankNota" class="ronda-nota">📌 Ranking de la <b>Ronda 1</b>.</div>
     <div id="rank-filterbar" class="filterbar" style="flex-wrap:wrap"></div>
     <div id="rankTable"><div class="loading">Cargando ranking…</div></div>
     <div style="margin-top:14px;text-align:center">
@@ -371,76 +392,79 @@ const EN = {
 //  PARTIDOS
 // ============================================================
 const MATCHES = [
-  // ---- HISTÓRICOS ----
-  {id:"h03",day:"Histórico · 18 jun",grp:"A",a:"Chequia",b:"Sudáfrica",type:"hist",stage:"grupos"},
-  {id:"h04",day:"Histórico · 18 jun",grp:"B",a:"Suiza",b:"Bosnia",type:"hist",stage:"grupos"},
-  {id:"h05",day:"Histórico · 18 jun",grp:"B",a:"Canadá",b:"Qatar",type:"hist",stage:"grupos"},
-  {id:"h06",day:"Histórico · 18 jun",grp:"A",a:"México",b:"Corea del Sur",type:"hist",stage:"grupos"},
-  {id:"h07",day:"Histórico · 19 jun",grp:"D",a:"Estados Unidos",b:"Australia",type:"hist",stage:"grupos"},
-  {id:"h08",day:"Histórico · 19 jun",grp:"C",a:"Escocia",b:"Marruecos",type:"hist",stage:"grupos"},
-  {id:"h09",day:"Histórico · 19 jun",grp:"C",a:"Brasil",b:"Haití",type:"hist",stage:"grupos"},
-  {id:"h10",day:"Histórico · 19 jun",grp:"D",a:"Turquía",b:"Paraguay",type:"hist",stage:"grupos"},
-  {id:"h40",day:"Histórico · 20 jun",grp:"E",a:"Alemania",b:"Costa de Marfil",type:"hist",stage:"grupos"},
-  {id:"h41",day:"Histórico · 20 jun",grp:"E",a:"Ecuador",b:"Curazao",type:"hist",stage:"grupos"},
-  {id:"h42",day:"Histórico · 20 jun",grp:"F",a:"Países Bajos",b:"Suecia",type:"hist",stage:"grupos"},
-  {id:"h43",day:"Histórico · 20 jun",grp:"F",a:"Túnez",b:"Japón",type:"hist",stage:"grupos"},
-  // ---- NUEVOS ----
-  {id:"n01",day:"Domingo 21 jun",grp:"H",a:"España",b:"Arabia Saudita",type:"hist",stage:"grupos"},
-  {id:"n02",day:"Domingo 21 jun",grp:"G",a:"Bélgica",b:"Irán",type:"hist",stage:"grupos"},
-  {id:"n03",day:"Domingo 21 jun",grp:"H",a:"Uruguay",b:"Cabo Verde",type:"hist",stage:"grupos"},
-  {id:"n04",day:"Domingo 21 jun",grp:"G",a:"Nueva Zelanda",b:"Egipto",type:"hist",stage:"grupos"},
-  {id:"n05",day:"Lunes 22 jun",grp:"J",a:"Argentina",b:"Austria",type:"hist",stage:"grupos"},
-  {id:"n06",day:"Lunes 22 jun",grp:"I",a:"Francia",b:"Irak",type:"hist",stage:"grupos"},
-  {id:"n07",day:"Lunes 22 jun",grp:"I",a:"Noruega",b:"Senegal",type:"hist",stage:"grupos"},
-  {id:"n08",day:"Lunes 22 jun",grp:"J",a:"Jordania",b:"Argelia",type:"hist",stage:"grupos"},
-  {id:"n09",day:"Martes 23 jun",grp:"K",a:"Portugal",b:"Uzbekistán",type:"hist",stage:"grupos"},
-  {id:"n10",day:"Martes 23 jun",grp:"L",a:"Inglaterra",b:"Ghana",type:"hist",stage:"grupos"},
-  {id:"n11",day:"Martes 23 jun",grp:"L",a:"Panamá",b:"Croacia",type:"hist",stage:"grupos"},
-  {id:"n12",day:"Martes 23 jun",grp:"K",a:"Colombia",b:"RD Congo",type:"hist",stage:"grupos"},
-  {id:"n13",day:"Miércoles 24 jun",grp:"B",a:"Suiza",b:"Canadá",type:"new",stage:"grupos"},
-  {id:"n14",day:"Miércoles 24 jun",grp:"B",a:"Bosnia",b:"Qatar",type:"new",stage:"grupos"},
-  {id:"n15",day:"Miércoles 24 jun",grp:"C",a:"Escocia",b:"Brasil",type:"new",stage:"grupos"},
-  {id:"n16",day:"Miércoles 24 jun",grp:"C",a:"Marruecos",b:"Haití",type:"new",stage:"grupos"},
-  {id:"n17",day:"Miércoles 24 jun",grp:"A",a:"Chequia",b:"México",type:"new",stage:"grupos"},
-  {id:"n18",day:"Miércoles 24 jun",grp:"A",a:"Sudáfrica",b:"Corea del Sur",type:"new",stage:"grupos"},
-  {id:"n19",day:"Jueves 25 jun",grp:"E",a:"Ecuador",b:"Alemania",type:"new",stage:"grupos"},
-  {id:"n20",day:"Jueves 25 jun",grp:"E",a:"Curazao",b:"Costa de Marfil",type:"new",stage:"grupos"},
-  {id:"n21",day:"Jueves 25 jun",grp:"F",a:"Japón",b:"Suecia",type:"new",stage:"grupos"},
-  {id:"n22",day:"Jueves 25 jun",grp:"F",a:"Túnez",b:"Países Bajos",type:"new",stage:"grupos"},
-  {id:"n23",day:"Jueves 25 jun",grp:"D",a:"Turquía",b:"Estados Unidos",type:"new",stage:"grupos"},
-  {id:"n24",day:"Jueves 25 jun",grp:"D",a:"Paraguay",b:"Australia",type:"new",stage:"grupos"},
-  {id:"n25",day:"Viernes 26 jun",grp:"I",a:"Noruega",b:"Francia",type:"new",stage:"grupos"},
-  {id:"n26",day:"Viernes 26 jun",grp:"I",a:"Senegal",b:"Irak",type:"new",stage:"grupos"},
-  {id:"n27",day:"Viernes 26 jun",grp:"H",a:"Cabo Verde",b:"Arabia Saudita",type:"new",stage:"grupos"},
-  {id:"n28",day:"Viernes 26 jun",grp:"H",a:"Uruguay",b:"España",type:"new",stage:"grupos"},
-  {id:"n29",day:"Viernes 26 jun",grp:"G",a:"Egipto",b:"Irán",type:"new",stage:"grupos"},
-  {id:"n30",day:"Viernes 26 jun",grp:"G",a:"Nueva Zelanda",b:"Bélgica",type:"new",stage:"grupos"},
-  {id:"n31",day:"Sábado 27 jun",grp:"L",a:"Panamá",b:"Inglaterra",type:"new",stage:"grupos"},
-  {id:"n32",day:"Sábado 27 jun",grp:"L",a:"Croacia",b:"Ghana",type:"new",stage:"grupos"},
-  {id:"n33",day:"Sábado 27 jun",grp:"K",a:"Colombia",b:"Portugal",type:"new",stage:"grupos"},
-  {id:"n34",day:"Sábado 27 jun",grp:"K",a:"RD Congo",b:"Uzbekistán",type:"new",stage:"grupos"},
-  {id:"n35",day:"Sábado 27 jun",grp:"J",a:"Argelia",b:"Austria",type:"new",stage:"grupos"},
-  {id:"n36",day:"Sábado 27 jun",grp:"J",a:"Jordania",b:"Argentina",type:"new",stage:"grupos"},
+  // ---- RONDA 1 (18-23 jun) ----
+  {id:"h03",day:"Histórico · 18 jun",grp:"A",a:"Chequia",b:"Sudáfrica",type:"hist",stage:"ronda1"},
+  {id:"h04",day:"Histórico · 18 jun",grp:"B",a:"Suiza",b:"Bosnia",type:"hist",stage:"ronda1"},
+  {id:"h05",day:"Histórico · 18 jun",grp:"B",a:"Canadá",b:"Qatar",type:"hist",stage:"ronda1"},
+  {id:"h06",day:"Histórico · 18 jun",grp:"A",a:"México",b:"Corea del Sur",type:"hist",stage:"ronda1"},
+  {id:"h07",day:"Histórico · 19 jun",grp:"D",a:"Estados Unidos",b:"Australia",type:"hist",stage:"ronda1"},
+  {id:"h08",day:"Histórico · 19 jun",grp:"C",a:"Escocia",b:"Marruecos",type:"hist",stage:"ronda1"},
+  {id:"h09",day:"Histórico · 19 jun",grp:"C",a:"Brasil",b:"Haití",type:"hist",stage:"ronda1"},
+  {id:"h10",day:"Histórico · 19 jun",grp:"D",a:"Turquía",b:"Paraguay",type:"hist",stage:"ronda1"},
+  {id:"h40",day:"Histórico · 20 jun",grp:"E",a:"Alemania",b:"Costa de Marfil",type:"hist",stage:"ronda1"},
+  {id:"h41",day:"Histórico · 20 jun",grp:"E",a:"Ecuador",b:"Curazao",type:"hist",stage:"ronda1"},
+  {id:"h42",day:"Histórico · 20 jun",grp:"F",a:"Países Bajos",b:"Suecia",type:"hist",stage:"ronda1"},
+  {id:"h43",day:"Histórico · 20 jun",grp:"F",a:"Túnez",b:"Japón",type:"hist",stage:"ronda1"},
+  {id:"n01",day:"Domingo 21 jun",grp:"H",a:"España",b:"Arabia Saudita",type:"hist",stage:"ronda1"},
+  {id:"n02",day:"Domingo 21 jun",grp:"G",a:"Bélgica",b:"Irán",type:"hist",stage:"ronda1"},
+  {id:"n03",day:"Domingo 21 jun",grp:"H",a:"Uruguay",b:"Cabo Verde",type:"hist",stage:"ronda1"},
+  {id:"n04",day:"Domingo 21 jun",grp:"G",a:"Nueva Zelanda",b:"Egipto",type:"hist",stage:"ronda1"},
+  {id:"n05",day:"Lunes 22 jun",grp:"J",a:"Argentina",b:"Austria",type:"hist",stage:"ronda1"},
+  {id:"n06",day:"Lunes 22 jun",grp:"I",a:"Francia",b:"Irak",type:"hist",stage:"ronda1"},
+  {id:"n07",day:"Lunes 22 jun",grp:"I",a:"Noruega",b:"Senegal",type:"hist",stage:"ronda1"},
+  {id:"n08",day:"Lunes 22 jun",grp:"J",a:"Jordania",b:"Argelia",type:"hist",stage:"ronda1"},
+  {id:"n09",day:"Martes 23 jun",grp:"K",a:"Portugal",b:"Uzbekistán",type:"hist",stage:"ronda1"},
+  {id:"n10",day:"Martes 23 jun",grp:"L",a:"Inglaterra",b:"Ghana",type:"hist",stage:"ronda1"},
+  {id:"n11",day:"Martes 23 jun",grp:"L",a:"Panamá",b:"Croacia",type:"hist",stage:"ronda1"},
+  {id:"n12",day:"Martes 23 jun",grp:"K",a:"Colombia",b:"RD Congo",type:"hist",stage:"ronda1"},
+  // ---- RONDA 2 (24-27 jun) ----
+  {id:"n13",day:"Miércoles 24 jun",grp:"B",a:"Suiza",b:"Canadá",type:"new",stage:"ronda2"},
+  {id:"n14",day:"Miércoles 24 jun",grp:"B",a:"Bosnia",b:"Qatar",type:"new",stage:"ronda2"},
+  {id:"n15",day:"Miércoles 24 jun",grp:"C",a:"Escocia",b:"Brasil",type:"new",stage:"ronda2"},
+  {id:"n16",day:"Miércoles 24 jun",grp:"C",a:"Marruecos",b:"Haití",type:"new",stage:"ronda2"},
+  {id:"n17",day:"Miércoles 24 jun",grp:"A",a:"Chequia",b:"México",type:"new",stage:"ronda2"},
+  {id:"n18",day:"Miércoles 24 jun",grp:"A",a:"Sudáfrica",b:"Corea del Sur",type:"new",stage:"ronda2"},
+  {id:"n19",day:"Jueves 25 jun",grp:"E",a:"Ecuador",b:"Alemania",type:"new",stage:"ronda2"},
+  {id:"n20",day:"Jueves 25 jun",grp:"E",a:"Curazao",b:"Costa de Marfil",type:"new",stage:"ronda2"},
+  {id:"n21",day:"Jueves 25 jun",grp:"F",a:"Japón",b:"Suecia",type:"new",stage:"ronda2"},
+  {id:"n22",day:"Jueves 25 jun",grp:"F",a:"Túnez",b:"Países Bajos",type:"new",stage:"ronda2"},
+  {id:"n23",day:"Jueves 25 jun",grp:"D",a:"Turquía",b:"Estados Unidos",type:"new",stage:"ronda2"},
+  {id:"n24",day:"Jueves 25 jun",grp:"D",a:"Paraguay",b:"Australia",type:"new",stage:"ronda2"},
+  {id:"n25",day:"Viernes 26 jun",grp:"I",a:"Noruega",b:"Francia",type:"new",stage:"ronda2"},
+  {id:"n26",day:"Viernes 26 jun",grp:"I",a:"Senegal",b:"Irak",type:"new",stage:"ronda2"},
+  {id:"n27",day:"Viernes 26 jun",grp:"H",a:"Cabo Verde",b:"Arabia Saudita",type:"new",stage:"ronda2"},
+  {id:"n28",day:"Viernes 26 jun",grp:"H",a:"Uruguay",b:"España",type:"new",stage:"ronda2"},
+  {id:"n29",day:"Viernes 26 jun",grp:"G",a:"Egipto",b:"Irán",type:"new",stage:"ronda2"},
+  {id:"n30",day:"Viernes 26 jun",grp:"G",a:"Nueva Zelanda",b:"Bélgica",type:"new",stage:"ronda2"},
+  {id:"n31",day:"Sábado 27 jun",grp:"L",a:"Panamá",b:"Inglaterra",type:"new",stage:"ronda2"},
+  {id:"n32",day:"Sábado 27 jun",grp:"L",a:"Croacia",b:"Ghana",type:"new",stage:"ronda2"},
+  {id:"n33",day:"Sábado 27 jun",grp:"K",a:"Colombia",b:"Portugal",type:"new",stage:"ronda2"},
+  {id:"n34",day:"Sábado 27 jun",grp:"K",a:"RD Congo",b:"Uzbekistán",type:"new",stage:"ronda2"},
+  {id:"n35",day:"Sábado 27 jun",grp:"J",a:"Argelia",b:"Austria",type:"new",stage:"ronda2"},
+  {id:"n36",day:"Sábado 27 jun",grp:"J",a:"Jordania",b:"Argentina",type:"new",stage:"ronda2"},
 ];
 
+// Definición de etapas (ordenadas)
 const STAGES = [
-  {key:"grupos",  label:"Fase de Grupos"},
+  {key:"ronda1", label:"Ronda 1"},
+  {key:"ronda2", label:"Ronda 2"},
   {key:"octavos", label:"Octavos"},
   {key:"cuartos", label:"Cuartos"},
-  {key:"semis",   label:"Semifinales"},
-  {key:"final",   label:"Final"},
+  {key:"semis", label:"Semifinales"},
+  {key:"final", label:"Final"},
 ];
-MATCHES.forEach(m=>{ if(!m.stage) m.stage="grupos"; });
+MATCHES.forEach(m=>{ if(!m.stage) m.stage="ronda1"; });
 function activeStages(){ return STAGES.filter(s=>MATCHES.some(m=>m.stage===s.key)); }
-let curStage = "grupos";
 
+let curStage = "ronda1"; // etapa seleccionada actualmente
 let RESULTS = {};
 let QUINIELAS = [];
 let curPicks = {};
-let curFilter = "grupos"; // ya no hay "all"; por defecto grupos
+let curFilter = "ronda1";
 let curView = "play";
 let unlocked = false;
 try{ unlocked = localStorage.getItem("quiniela_admin")==="1"; }catch(e){ unlocked=false; }
+// doneMatches ya no se usa para ocultar, solo para saber si ya predijo (se recalcula cada vez)
 let doneMatches = {};
 try{ doneMatches = JSON.parse(localStorage.getItem("quiniela_done")||"{}"); }catch(e){ doneMatches = {}; }
 function saveDone(){ try{ localStorage.setItem("quiniela_done",JSON.stringify(doneMatches)); }catch(e){} }
@@ -467,14 +491,33 @@ async function sbUpsert(table,obj){
 }
 function fl(team){return FLAG[team]||"⚽"}
 
+// Normalización de nombres (minúsculas, sin acentos, sin espacios extra)
+function normalizeName(name){
+  return name.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ").trim();
+}
+
 async function upsertQuiniela(obj) {
+  const normalized = normalizeName(obj.jugador);
+  // Buscar por nombre normalizado para evitar duplicados por variantes
   const resp = await fetch(
     `${SB_URL}/rest/v1/quinielas?jugador=eq.${encodeURIComponent(obj.jugador)}`,
     { headers: HEADERS }
   );
   if (!resp.ok) throw new Error(await resp.text());
-  const data = await resp.json();
-
+  let data = await resp.json();
+  // Si no se encontró exactamente, buscar por normalizado (puede haber variantes)
+  if (!data || data.length === 0) {
+    // Buscar todos los jugadores y filtrar por normalizado (no eficiente pero es lo que hay)
+    const all = await sbGet("quinielas");
+    const candidates = all.filter(q => normalizeName(q.jugador) === normalized);
+    if (candidates.length > 0) {
+      // Ordenar por id descendente y tomar el más reciente
+      candidates.sort((a,b) => b.id - a.id);
+      data = [candidates[0]];
+    }
+  }
   if (data && data.length > 0) {
     const id = data[0].id;
     const r = await fetch(`${SB_URL}/rest/v1/quinielas?id=eq.${id}`, {
@@ -500,15 +543,22 @@ async function loadAll(){
     const [parts,quis]=await Promise.all([sbGet("partidos"),sbGet("quinielas")]);
     RESULTS={};
     parts.forEach(p=>{RESULTS[p.id]={who:p.res_who,first:p.res_first,shots:p.res_shots,ga:p.res_ga,gb:p.res_gb}});
+    // Agrupar por nombre normalizado y quedarse con el más reciente
     const map = new Map();
     quis.forEach(q => {
-      const existing = map.get(q.jugador);
+      const norm = normalizeName(q.jugador);
+      const existing = map.get(norm);
       if (!existing || q.id > existing.id) {
-        map.set(q.jugador, q);
+        // Guardamos el registro con el nombre original del más reciente
+        map.set(norm, { id: q.id, jugador: q.jugador, picks: q.picks });
       }
     });
-    QUINIELAS = Array.from(map.values());
-    return QUINIELAS; // para usar en el select
+    QUINIELAS = Array.from(map.values()).map(item => ({
+      id: item.id,
+      jugador: item.jugador,
+      picks: item.picks
+    }));
+    return QUINIELAS;
   }catch(e){toast("No se pudo conectar con la base",("err"));console.error(e); return [];}
 }
 
@@ -565,7 +615,7 @@ async function syncResults(silent){
 }
 
 // ============================================================
-//  VISTA: JUGAR (con selector de jugador)
+//  VISTA: JUGAR (con selector de jugador y predicciones visibles)
 // ============================================================
 function deriveFromScore(ga,gb){
   if(ga==null||gb==null) return null;
@@ -577,7 +627,7 @@ function deriveFromScore(ga,gb){
     ga, gb
   };
 }
-function scoreSelector(mid,p){
+function scoreSelector(mid,p,disabled){
   const ga=p.ga, gb=p.gb;
   const d=deriveFromScore(ga,gb);
   let derived="";
@@ -593,23 +643,25 @@ function scoreSelector(mid,p){
       <span class="score-team">${fl(p._a||"")}</span>
       <input type="number" class="score-input" inputmode="numeric" min="0" max="20"
         id="ga-${mid}" data-act="scoreinput" data-side="a" data-m="${mid}"
-        value="${ga==null?"":ga}" placeholder="–">
+        value="${ga==null?"":ga}" placeholder="–" ${disabled?'disabled':''}>
     </div>
     <span class="score-dash">–</span>
     <div class="score-col">
       <span class="score-team">${fl(p._b||"")}</span>
       <input type="number" class="score-input" inputmode="numeric" min="0" max="20"
         id="gb-${mid}" data-act="scoreinput" data-side="b" data-m="${mid}"
-        value="${gb==null?"":gb}" placeholder="–">
+        value="${gb==null?"":gb}" placeholder="–" ${disabled?'disabled':''}>
     </div>
   </div>${derived}`;
 }
 
-function optButtons(field,mid,cur,opts){
+function optButtons(field,mid,cur,opts,disabled){
+  const cls = disabled ? ' disabled' : '';
   return `<div class="opts">`+opts.map(o=>
-    `<button class="opt${cur===o.v?' sel':''}" data-act="pick" data-f="${field}" data-m="${mid}" data-v="${o.v}">${o.f?`<span class="f">${o.f}</span>`:""}${o.t}</button>`
+    `<button class="opt${cur===o.v?' sel':''}${cls}" data-act="pick" data-f="${field}" data-m="${mid}" data-v="${o.v}" ${disabled?'disabled':''}>${o.f?`<span class="f">${o.f}</span>`:""}${o.t}</button>`
   ).join("")+`</div>`;
 }
+
 function renderStageBar(containerId, onPick){
   const stages=activeStages();
   const box=document.getElementById(containerId);
@@ -627,7 +679,6 @@ function populatePlayerSelect() {
   const select = document.getElementById('playerSelect');
   const current = select.value;
   select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
-  // Obtener nombres únicos de QUINIELAS que tengan al menos un pick
   const names = new Set();
   QUINIELAS.forEach(q => {
     if (q.picks && Object.keys(q.picks).length > 0) {
@@ -641,7 +692,6 @@ function populatePlayerSelect() {
     select.appendChild(opt);
   });
   if (current && names.has(current)) select.value = current;
-  // Si no hay jugadores, ocultar botón guardar?
   const btn = document.getElementById('saveBtn');
   if (names.size === 0) {
     btn.disabled = true;
@@ -656,52 +706,35 @@ function loadPlayerPicks(name) {
   const player = QUINIELAS.find(q => q.jugador === name);
   if (player && player.picks) {
     curPicks = JSON.parse(JSON.stringify(player.picks));
-    // Marcar los partidos que ya predijo en esta etapa para ocultarlos
-    const stageMatches = MATCHES.filter(m => m.stage === curStage && m.type === 'new');
-    stageMatches.forEach(m => {
-      if (curPicks[m.id] && (curPicks[m.id].who || (curPicks[m.id].ga != null && curPicks[m.id].gb != null))) {
-        doneMatches[m.id] = true;
-      } else {
-        delete doneMatches[m.id];
-      }
-    });
-    saveDone();
   } else {
     curPicks = {};
-    // limpiar doneMatches para esta etapa
-    MATCHES.filter(m => m.stage === curStage && m.type === 'new').forEach(m => delete doneMatches[m.id]);
-    saveDone();
   }
   renderPlay();
 }
 
 function renderPlay(){
   const stages=activeStages();
-  if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
+  if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"ronda1";
   renderStageBar("stage-bar-play", renderPlay);
   const stageMatches = MATCHES.filter(m=>m.stage===curStage);
-  const yaJugado = id => { const r=RESULTS[id]; return r && r.who; };
-  const pending = stageMatches.filter(m=> m.type==="new" && !doneMatches[m.id] && !yaJugado(m.id));
+  // No filtramos por "new" ni por "done", mostramos todos los partidos de la etapa
+  // pero con estilo diferente si ya tiene predicción
   const box=document.getElementById("matches");
-  if(!pending.length){
-    box.innerHTML=`<div class="empty">🎉 Ya no hay partidos pendientes por predecir en esta etapa.<br>
-      Revisa la pestaña <b>Ranking</b> para ver cómo van todos.<br><br>
-      <button class="btn btn-ghost" id="resetPlay">Volver a mostrar los partidos en este dispositivo</button></div>`;
-    const rb=document.getElementById("resetPlay");
-    if(rb) rb.addEventListener("click",()=>{
-      if(confirm("¿Volver a mostrar los partidos de esta etapa? (no borra datos guardados)")){
-        stageMatches.forEach(m=>{delete doneMatches[m.id];});saveDone();renderPlay();
-      }
-    });
+  if(!stageMatches.length){
+    box.innerHTML=`<div class="empty">No hay partidos en esta etapa.</div>`;
     return;
   }
-  let html=`<div class="legend" style="margin-bottom:14px">Estás prediciendo la etapa <b>${STAGES.find(s=>s.key===curStage)?.label||curStage}</b>. Te faltan <b>${pending.length}</b> partidos.</div>`;
+  const selectedPlayer = document.getElementById('playerSelect').value;
+  let html = `<div class="legend">Selecciona un jugador de la lista para ver o modificar sus predicciones.</div>`;
   let lastDay="";
-  pending.forEach(m=>{
+  stageMatches.forEach(m=>{
     const isKO=m.phase==="ko";
     if(m.day!==lastDay){html+=`<div class="daygroup">${m.day}</div>`;lastDay=m.day;}
-    const p=curPicks[m.id]||{};
-    const isDraw=p.who==="draw";
+    const p = curPicks[m.id] || {};
+    const hasPick = p && (p.who || (p.ga != null && p.gb != null));
+    // Deshabilitar edición si ya hay pick (solo lectura)
+    const disabled = hasPick;
+    const isDraw = p.who==="draw";
     html+=`<div class="card">
       <div class="top">
         <div class="team"><span class="flag">${fl(m.a)}</span><span class="nm">${m.a}</span></div>
@@ -709,23 +742,27 @@ function renderPlay(){
         <div class="team"><span class="flag">${fl(m.b)}</span><span class="nm">${m.b}</span></div>
       </div>
       <div class="body">
-        <div class="badge-row"><span class="badge ${m.type}">${m.type==="hist"?"🟡 Vale +1":"🟢 Reglas nuevas"}</span></div>`;
+        <div class="badge-row">
+          <span class="badge ${m.type}">${m.type==="hist"?"🟡 Vale +1":"🟢 Reglas nuevas"}</span>
+          ${hasPick ? `<span class="badge-done">✅ Predicción guardada</span>` : ''}
+        </div>`;
     if(m.type==="hist"){
       html+=`<div class="q"><span class="lbl">¿Quién gana?</span>
         ${optButtons("who",m.id,p.who||"",
           isKO
           ? [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}]
-          : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}])}</div>`;
+          : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}],
+          disabled)}</div>`;
     }else{
       const d=deriveFromScore(p.ga,p.gb);
       const isDrawScore = d && d.who==="draw";
       html+=`<div class="q"><span class="lbl">Marcador exacto <span class="mini">+3</span> · de aquí salen ganador, goles y ambos anotan</span>
-        ${scoreSelector(m.id,{...p,_a:m.a,_b:m.b})}</div>`;
+        ${scoreSelector(m.id,{...p,_a:m.a,_b:m.b}, disabled)}</div>`;
       html+=`<div class="q"><span class="lbl">¿Quién anota primero? <span class="mini">+1</span></span>
-        ${optButtons("first",m.id,p.first||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}])}</div>`;
+        ${optButtons("first",m.id,p.first||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}], disabled)}</div>`;
       if(isDrawScore && !isKO){
         html+=`<div class="desempate"><div class="q" style="margin:0"><span class="lbl">Predijiste empate → ¿más tiros a gol? <span class="mini">+1</span></span>
-          ${optButtons("shots",m.id,p.shots||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}])}</div></div>`;
+          ${optButtons("shots",m.id,p.shots||"",[{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}], disabled)}</div></div>`;
       }
     }
     html+=`</div></div>`;
@@ -754,15 +791,16 @@ function renderMatchCard(m) {
       ${optButtons("rwho", m.id, r.who || "",
         isKO
         ? [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}]
-        : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}])}</div>`;
+        : [{v:"a",t:m.a,f:fl(m.a)},{v:"draw",t:"Empate",f:"🤝"},{v:"b",t:m.b,f:fl(m.b)}],
+        false)}</div>`;
   } else {
     html += `<div class="q"><span class="lbl">Marcador real <span class="mini">(auto)</span></span>
       ${scoreSelectorAdmin(m.id, r)}</div>`;
     html += `<div class="q"><span class="lbl">Anotó primero</span>
-      ${optButtons("rfirst", m.id, r.first || "", [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}])}</div>`;
+      ${optButtons("rfirst", m.id, r.first || "", [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)},{v:"none",t:"Sin goles",f:"🚫"}], false)}</div>`;
     if (isDraw) {
       html += `<div class="desempate"><div class="q" style="margin:0"><span class="lbl">Más tiros a gol <span class="mini">(manual)</span></span>
-        ${optButtons("rshots", m.id, r.shots || "", [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}])}</div></div>`;
+        ${optButtons("rshots", m.id, r.shots || "", [{v:"a",t:m.a,f:fl(m.a)},{v:"b",t:m.b,f:fl(m.b)}], false)}</div></div>`;
     }
   }
   if (done) {
@@ -791,8 +829,11 @@ function scoreSelectorAdmin(mid,r){
 
 function renderAdmin(){
   const stages=activeStages();
-  if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"grupos";
+  if(!stages.some(s=>s.key===curStage)) curStage=stages[0]?.key||"ronda1";
   renderStageBar("stage-bar-admin", renderAdmin);
+  // Actualizar nota
+  const stageLabel = STAGES.find(s=>s.key===curStage)?.label || curStage;
+  document.getElementById('adminNota').innerHTML = `📌 Resultados de la <b>${stageLabel}</b>.`;
 
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -854,7 +895,7 @@ function renderAdmin(){
 }
 
 // ============================================================
-//  VISTA: RANKING (sin acumulado, solo por etapa)
+//  VISTA: RANKING (con podio y sin acumulado)
 // ============================================================
 function renderRankFilters(){
   const bar=document.getElementById("rank-filterbar");
@@ -870,65 +911,116 @@ function renderRankFilters(){
       curFilter=b.dataset.f;
       renderRankFilters();
       renderRank(curFilter);
-      // Actualizar nota
       const stageLabel = STAGES.find(s=>s.key===curFilter)?.label || curFilter;
       document.getElementById('rankNota').innerHTML = `📌 Ranking de la <b>${stageLabel}</b>.`;
     });
   });
-  // Asegurar nota
   const stageLabel = STAGES.find(s=>s.key===curFilter)?.label || curFilter;
   document.getElementById('rankNota').innerHTML = `📌 Ranking de la <b>${stageLabel}</b>.`;
 }
 
+// Nueva función de puntuación simplificada
 function scoreMatch(pick,res,type){
   if(!res||!res.who) return {pts:0,hit:false};
   let pts=0,hit=false;
+  // Históricos (ronda 1): solo ganador +1
   if(type==="hist"){
     if(pick&&pick.who&&pick.who===res.who){pts+=1;hit=true;}
     return {pts,hit};
   }
+  // Nuevos: sistema simplificado
   const dp = (pick && pick.ga!=null && pick.gb!=null) ? deriveFromScore(pick.ga,pick.gb) : null;
   const dr = (res.ga!=null && res.gb!=null) ? deriveFromScore(res.ga,res.gb) : null;
-  if(dp && dp.who===res.who){pts+=3;hit=true;}
-  if(dp && res.ga!=null && +pick.ga===+res.ga && +pick.gb===+res.gb){pts+=3;hit=true;}
-  if(pick && pick.first && pick.first===res.first) pts+=1;
-  if(dp && dr && dp.over===dr.over) pts+=1;
-  if(dp && dr && dp.btts===dr.btts) pts+=1;
-  if(res.who==="draw" && pick && pick.shots && pick.shots===res.shots) pts+=1;
+  // Marcador exacto: +3
+  if(dp && res.ga!=null && +pick.ga===+res.ga && +pick.gb===+res.gb){
+    pts += 3;
+    hit = true;
+  }
+  // Ganador correcto (si no acertó marcador exacto): +1
+  else if(dp && dp.who===res.who){
+    pts += 1;
+    hit = true;
+  }
+  // Primer gol: +1
+  if(pick && pick.first && pick.first===res.first) pts += 1;
+  // Tiros a gol (solo si resultado real fue empate y pick tiene shots): +1
+  if(res.who==="draw" && pick && pick.shots && pick.shots===res.shots) pts += 1;
   return {pts,hit};
 }
 
 function renderRank(filter){
   filter=filter||curFilter;
-  const rows=QUINIELAS.map(q=>{
+  // Obtener fecha de registro de cada jugador (para desempate)
+  // Asumimos que cada jugador tiene un id y su fecha de creación se puede obtener de la base
+  // Pero no tenemos created_at en el objeto QUINIELAS. Podemos obtenerlo de la tabla.
+  // Para simplificar, usamos el id como proxy (mayor id = más reciente, pero para desempate queremos el más antiguo)
+  // Si no tenemos created_at, usamos id (menor id = más antiguo) como criterio de desempate.
+  // Pero mejor: en loadAll podríamos guardar el created_at. Lo añadimos.
+  // Por ahora, asumimos que el orden de QUINIELAS es el de la base (que ya está ordenado por id? no, mejor lo hacemos explícito)
+  // Para desempate, usaremos el id (menor id = más antiguo, es decir, registrado antes)
+  const rows = QUINIELAS.map(q => {
     let tot=0,hits=0,first=0,played=0;
-    MATCHES.forEach(m=>{
-      if(m.stage!==filter) return; // solo la etapa seleccionada
-      const pick=(q.picks||{})[m.id];
-      const res=RESULTS[m.id];
-      if(res&&res.who) played++;
-      const s=scoreMatch(pick,res,m.type);
-      tot+=s.pts; if(s.hit) hits++;
-      if(m.type==="new"&&pick&&res&&res.who&&pick.first&&pick.first===res.first) first++;
+    MATCHES.forEach(m => {
+      if(m.stage!==filter) return;
+      const pick = (q.picks||{})[m.id];
+      const res = RESULTS[m.id];
+      if(res && res.who) played++;
+      const s = scoreMatch(pick, res, m.type);
+      tot += s.pts;
+      if(s.hit) hits++;
+      if(m.type==="new" && pick && res && res.who && pick.first && pick.first===res.first) first++;
     });
-    return {name:q.jugador,tot,hits,first};
+    return { name: q.jugador, tot, hits, first, id: q.id };
   });
-  rows.sort((a,b)=>b.tot-a.tot||b.hits-a.hits||b.first-a.first||a.name.localeCompare(b.name));
-  const box=document.getElementById("rankTable");
-  if(!rows.length){box.innerHTML=`<div class="empty">Aún no hay quinielas guardadas para esta etapa.<br>Pásate a <b>Jugar</b> para registrar la primera.</div>`;return;}
+  // Orden: puntos descendente, luego aciertos en primer gol descendente, luego id ascendente (más antiguo primero)
+  rows.sort((a,b) => b.tot - a.tot || b.hits - a.hits || b.first - a.first || a.id - b.id);
+
+  const box = document.getElementById("rankTable");
+  if(!rows.length){ box.innerHTML = `<div class="empty">Aún no hay quinielas guardadas para esta etapa.</div>`; return; }
+
   const stageLabel = STAGES.find(s=>s.key===filter)?.label||filter;
-  let html=`<div class="rank-scope">📍 ${stageLabel}</div><div class="rank-card">`;
-  rows.forEach((r,i)=>{
-    const cls=i===0?"p1":i===1?"p2":i===2?"p3":"";
-    const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);
-    html+=`<div class="rrow ${cls}">
-      <div class="pos">${medal}</div>
-      <div class="who" data-player="${r.name}">${r.name}<span class="sub">${r.hits} aciertos${r.first?` · ${r.first} primer gol`:""}</span></div>
-      <div class="pts">${r.tot}<span class="u">pts</span></div>
-    </div>`;
-  });
-  html+=`</div>`;
-  box.innerHTML=html;
+  let html = `<div class="rank-scope">📍 ${stageLabel}</div>`;
+
+  // Podio para los 3 primeros
+  if(rows.length > 0){
+    const top3 = rows.slice(0,3);
+    const rest = rows.slice(3);
+    html += `<div class="podium">`;
+    // Orden: 2º, 1º, 3º
+    const order = [1,0,2];
+    order.forEach(idx => {
+      if(idx >= top3.length) return;
+      const r = top3[idx];
+      const cls = idx===0 ? 'podium-1' : (idx===1 ? 'podium-2' : 'podium-3');
+      const medal = idx===0 ? '🥇' : (idx===1 ? '🥈' : '🥉');
+      html += `<div class="podium-item ${cls}">
+        <div class="medal">${medal}</div>
+        <div class="podium-box">
+          <div class="name">${r.name}</div>
+          <div class="pts">${r.tot} <span class="u">pts</span></div>
+          <div class="sub">${r.hits} aciertos${r.first?` · ${r.first} 1er gol`:''}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Resto de participantes en lista
+    if(rest.length > 0){
+      html += `<div class="rank-card" style="margin-top:16px;">`;
+      rest.forEach((r,i) => {
+        const pos = i+4;
+        html += `<div class="rrow">
+          <div class="pos">${pos}</div>
+          <div class="who" data-player="${r.name}">${r.name}<span class="sub">${r.hits} aciertos${r.first?` · ${r.first} 1er gol`:''}</span></div>
+          <div class="pts">${r.tot}<span class="u">pts</span></div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+  }
+
+  box.innerHTML = html;
+  // Listeners para abrir modal
   box.querySelectorAll('.who[data-player]').forEach(el => {
     el.addEventListener('click', function() {
       const playerName = this.dataset.player;
@@ -951,7 +1043,7 @@ function showPlayerDetails(playerName) {
 
   nameEl.textContent = playerName;
 
-  const stageMatches = MATCHES.filter(m => m.stage === curFilter); // misma etapa que el ranking
+  const stageMatches = MATCHES.filter(m => m.stage === curFilter);
   if (stageMatches.length === 0) {
     detailsEl.innerHTML = '<div class="empty">No hay partidos en esta etapa.</div>';
     modal.classList.add('show');
@@ -1038,7 +1130,6 @@ document.querySelectorAll(".tab").forEach(t=>{
     if(v==="play"){
       await loadAll();
       populatePlayerSelect();
-      // Si hay un jugador seleccionado, cargar sus picks
       const sel = document.getElementById('playerSelect');
       if (sel.value) loadPlayerPicks(sel.value);
       else renderPlay();
@@ -1049,7 +1140,7 @@ document.querySelectorAll(".tab").forEach(t=>{
 // Captura del marcador escribiendo el número (Jugar)
 document.addEventListener("input", e=>{
   const inp=e.target.closest("[data-act=scoreinput]");
-  if(!inp) return;
+  if(!inp || inp.disabled) return;
   const{side,m}=inp.dataset;
   const key=side==="a"?"ga":"gb";
   curPicks[m]=curPicks[m]||{};
@@ -1130,7 +1221,7 @@ document.addEventListener("click",async e=>{
     return;
   }
   const b=e.target.closest("[data-act=pick]");
-  if(!b) return;
+  if(!b || b.disabled) return;
   const{f,m,v}=b.dataset;
   if(f==="who"||f==="first"||f==="shots"){
     curPicks[m]=curPicks[m]||{};
@@ -1163,8 +1254,6 @@ document.getElementById('playerSelect').addEventListener('change', function() {
     loadPlayerPicks(name);
   } else {
     curPicks = {};
-    MATCHES.filter(m => m.stage === curStage && m.type === 'new').forEach(m => delete doneMatches[m.id]);
-    saveDone();
     renderPlay();
   }
 });
@@ -1182,18 +1271,14 @@ document.getElementById("saveBtn").addEventListener("click",async()=>{
   btn.disabled=true;btn.textContent="Guardando…";
   try{
     await upsertQuiniela({ jugador: name, picks: curPicks });
-    predichos.forEach(id=>{doneMatches[id]=true;});
-    saveDone();
-    burstConfetti();
-    toast(`¡Quiniela de ${name} guardada! (${predichos.length} partidos)`,"ok");
-    curPicks={};
-    // Recargar datos y actualizar select
+    // Después de guardar, recargar datos para actualizar lista
     await loadAll();
     populatePlayerSelect();
-    select.value = name; // mantener selección
-    // Recargar sus picks (ahora ya actualizados)
+    select.value = name;
     loadPlayerPicks(name);
     if(curView==="rank") { renderRankFilters(); renderRank(curFilter); }
+    burstConfetti();
+    toast(`¡Quiniela de ${name} guardada! (${predichos.length} partidos)`,"ok");
   }catch(err){toast("Error al guardar","err");console.error(err);}
   btn.disabled=false;btn.textContent="Guardar quiniela";
 });
@@ -1214,10 +1299,11 @@ document.getElementById("cleanBtn").addEventListener("click", async () => {
     const map = new Map();
     const toDelete = [];
     all.forEach(q => {
-      const existing = map.get(q.jugador);
+      const norm = normalizeName(q.jugador);
+      const existing = map.get(norm);
       if (!existing || q.id > existing.id) {
         if (existing) toDelete.push(existing.id);
-        map.set(q.jugador, q);
+        map.set(norm, { id: q.id, jugador: q.jugador });
       } else {
         toDelete.push(q.id);
       }
